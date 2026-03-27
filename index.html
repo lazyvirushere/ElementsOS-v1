@@ -1,0 +1,2801 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ElementsOS v1.0 — The Ultimate HTML Reference</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       DESIGN TOKENS
+    ============================================================ */
+    :root {
+      --bg:        #0b0c10;
+      --bg2:       #13141a;
+      --bg3:       #1c1e28;
+      --bg4:       #252734;
+      --border:    rgba(255,255,255,0.07);
+      --text:      #e8e6df;
+      --muted:     #7c7b78;
+      --accent:    #c8fa5f;
+      --accent2:   #5fc8fa;
+      --accent3:   #fa5fc8;
+      --warn:      #faad5f;
+      --green:     #5dce7a;
+      --red:       #e85d5d;
+      --radius:    14px;
+      --radius-sm: 8px;
+      --shadow:    0 8px 40px rgba(0,0,0,.55);
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'Lora', Georgia, serif;
+      --font-mono: 'DM Mono', monospace;
+      --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+    [data-theme="light"] {
+      --bg:     #f5f3ee;
+      --bg2:    #ede9e2;
+      --bg3:    #e3ddd5;
+      --bg4:    #d8d2c8;
+      --border: rgba(0,0,0,0.09);
+      --text:   #1a1917;
+      --muted:  #8a8680;
+      --shadow: 0 8px 40px rgba(0,0,0,.12);
+    }
+    [data-theme="cyber"] {
+      --bg:     #050510;
+      --bg2:    #0a0a1f;
+      --bg3:    #0f0f2e;
+      --bg4:    #14143d;
+      --border: rgba(100,50,255,0.2);
+      --text:   #e0d8ff;
+      --muted:  #7060aa;
+      --accent:  #ff2d78;
+      --accent2: #7b2fff;
+      --accent3: #00f5ff;
+      --warn:    #ff9500;
+      --shadow: 0 8px 40px rgba(100,0,255,.4);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.7;
+      transition: background var(--transition), color var(--transition);
+      overflow-x: hidden;
+      cursor: none;
+    }
+    ::selection { background: var(--accent); color: #0b0c10; }
+
+    /* ============================================================
+       CUSTOM CURSOR
+    ============================================================ */
+    #cursor-dot {
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 99999;
+      transition: transform 0.1s ease, background 0.2s;
+      transform: translate(-50%,-50%);
+    }
+    #cursor-ring {
+      width: 32px; height: 32px;
+      border: 1.5px solid var(--accent);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 99998;
+      transition: transform 0.18s ease, width 0.2s, height 0.2s, border-color 0.2s;
+      transform: translate(-50%,-50%);
+      opacity: 0.7;
+    }
+    body.cursor-hover #cursor-ring { width: 48px; height: 48px; border-color: var(--accent3); }
+    body.cursor-hover #cursor-dot  { transform: translate(-50%,-50%) scale(1.5); background: var(--accent3); }
+
+    /* ============================================================
+       SCROLL PROGRESS BAR
+    ============================================================ */
+    #scroll-progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent2), var(--accent), var(--accent3));
+      z-index: 9999;
+      width: 0%;
+      transition: width 0.05s linear;
+    }
+
+    /* ============================================================
+       SCROLLBAR
+    ============================================================ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    /* ============================================================
+       TYPOGRAPHY SCALE
+    ============================================================ */
+    h1,h2,h3,h4,h5,h6 {
+      font-family: var(--font-head);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      font-weight: 800;
+    }
+    h1 { font-size: clamp(2.8rem, 7vw, 5.5rem); }
+    h2 { font-size: clamp(1.9rem, 4vw, 3rem); }
+    h3 { font-size: clamp(1.3rem, 2.5vw, 1.8rem); }
+    h4 { font-size: 1.2rem; }
+    h5 { font-size: 1rem; }
+    h6 { font-size: 0.875rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+    p  { max-width: 68ch; }
+    a  { color: var(--accent2); text-decoration: none; transition: color var(--transition); cursor: none; }
+    a:hover { color: var(--accent); }
+
+    /* ============================================================
+       LAYOUT UTILITIES
+    ============================================================ */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    .section { padding: 6rem 0; }
+    .section + .section { border-top: 1px solid var(--border); }
+
+    .tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      background: var(--accent);
+      color: #0b0c10;
+      padding: 2px 10px;
+      border-radius: 99px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .tag.blue  { background: var(--accent2); }
+    .tag.pink  { background: var(--accent3); color: #fff; }
+    .tag.warn  { background: var(--warn); }
+    .tag.green { background: var(--green); }
+
+    .section-label { display: flex; align-items: center; gap: 1rem; margin-bottom: 2.5rem; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: rgba(200,250,95,0.2); }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; }
+
+    /* ============================================================
+       NAVIGATION
+    ============================================================ */
+    nav#main-nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: rgba(11,12,16,0.75);
+      backdrop-filter: blur(24px) saturate(1.5);
+      -webkit-backdrop-filter: blur(24px) saturate(1.5);
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+    [data-theme="light"] nav#main-nav { background: rgba(245,243,238,0.85); }
+    [data-theme="cyber"] nav#main-nav { background: rgba(5,5,16,0.85); }
+
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px; max-width: 1200px; margin: 0 auto; padding: 0 2rem;
+    }
+    .nav-logo { font-family: var(--font-head); font-weight: 800; font-size: 1.25rem; color: var(--text); letter-spacing: -0.04em; }
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links { display: flex; align-items: center; gap: 0.25rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); font-family: var(--font-head); font-size: 0.82rem; font-weight: 600;
+      padding: 6px 12px; border-radius: var(--radius-sm);
+      transition: color var(--transition), background var(--transition);
+    }
+    .nav-links a:hover { color: var(--text); background: var(--bg3); }
+
+    .nav-actions { display: flex; gap: 0.6rem; align-items: center; }
+
+    #theme-btn {
+      width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border);
+      background: var(--bg3); color: var(--text); cursor: none;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+      transition: background var(--transition), transform var(--transition);
+    }
+    #theme-btn:hover { background: var(--bg2); transform: rotate(20deg); }
+
+    /* Theme Switcher Dropdown */
+    .theme-drop { position: relative; }
+    .theme-menu {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); overflow: hidden;
+      display: none; min-width: 140px;
+      box-shadow: var(--shadow);
+    }
+    .theme-menu.open { display: block; }
+    .theme-opt {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 9px 14px; font-family: var(--font-head);
+      font-size: 0.8rem; font-weight: 600; cursor: none;
+      transition: background var(--transition);
+    }
+    .theme-opt:hover { background: var(--bg3); }
+    .theme-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+    #hamburger { display: none; flex-direction: column; gap: 5px; cursor: none; padding: 8px; background: none; border: none; }
+    #hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: var(--transition); }
+
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      #hamburger { display: flex; }
+      .nav-links.open {
+        display: flex; position: fixed; top: 64px; left: 0; right: 0;
+        flex-direction: column; background: var(--bg2);
+        border-bottom: 1px solid var(--border); padding: 1rem 0 1.5rem; gap: 0;
+      }
+      .nav-links li { width: 100%; }
+      .nav-links a { display: block; padding: 10px 2rem; border-radius: 0; }
+    }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    #hero { padding: 160px 0 100px; position: relative; overflow: hidden; }
+
+    #hero::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 20%, black, transparent);
+    }
+    #hero::after {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 20% 60%, rgba(200,250,95,0.04) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 60% at 80% 40%, rgba(95,200,250,0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Typewriter */
+    .typewriter {
+      display: inline-block;
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 3px solid var(--accent);
+      animation: typing 3.5s steps(30,end) 0.5s both, blink 0.75s step-end infinite;
+    }
+    @keyframes typing { from { width: 0; } to { width: 100%; } }
+    @keyframes blink  { 50% { border-color: transparent; } }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent);
+      letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .hero-eyebrow::before { content: ''; display: inline-block; width: 32px; height: 2px; background: var(--accent); }
+
+    .hero-title { margin-bottom: 1.5rem; }
+    .hero-title em { font-style: normal; -webkit-text-stroke: 1px var(--accent); color: transparent; }
+
+    .hero-desc { font-size: 1.15rem; color: var(--muted); margin-bottom: 3rem; }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+    .hero-stats {
+      display: flex; gap: 3rem; margin-top: 5rem;
+      padding-top: 2.5rem; border-top: 1px solid var(--border); flex-wrap: wrap;
+    }
+    .stat-num { font-family: var(--font-head); font-size: 2.5rem; font-weight: 800; color: var(--accent); }
+    .stat-label { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+
+    .float-badge {
+      position: absolute; top: 180px; right: 10%;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem 1.5rem;
+      font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent);
+      animation: float 4s ease-in-out infinite; backdrop-filter: blur(10px);
+    }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    @media (max-width: 768px) { .float-badge { display: none; } }
+
+    /* ============================================================
+       BUTTONS
+    ============================================================ */
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: var(--font-head); font-weight: 700; font-size: 0.9rem;
+      padding: 12px 26px; border-radius: var(--radius-sm); border: none;
+      cursor: none; transition: all var(--transition); letter-spacing: 0.02em;
+      position: relative; overflow: hidden;
+    }
+    .btn::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0); transition: background var(--transition); }
+    .btn:hover::after { background: rgba(255,255,255,0.08); }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary { background: var(--accent); color: #0b0c10; }
+    .btn-primary:hover { box-shadow: 0 0 32px rgba(200,250,95,0.4); }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-ghost { background: var(--bg3); color: var(--text); }
+    .btn-ghost:hover { background: var(--bg4); }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-danger:hover { box-shadow: 0 0 24px rgba(232,93,93,0.4); }
+    .btn-cyan { background: var(--accent2); color: #0b0c10; }
+    .btn-cyan:hover { box-shadow: 0 0 32px rgba(95,200,250,0.4); }
+    .btn-pink { background: var(--accent3); color: #fff; }
+
+    .btn-sm { padding: 8px 18px; font-size: 0.8rem; }
+    .btn-lg { padding: 16px 36px; font-size: 1rem; }
+    .btn-icon { width: 42px; height: 42px; padding: 0; border-radius: 50%; background: var(--bg3); color: var(--text); border: 1px solid var(--border); justify-content: center; }
+
+    .btn-loading { opacity: 0.7; pointer-events: none; }
+    .btn-loading::before { content: ''; width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.3); border-top-color: #0b0c10; border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .btn-group { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+
+    .btn .ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple 0.5s linear; background: rgba(255,255,255,0.2); pointer-events: none; }
+    @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+    /* ============================================================
+       FORMS
+    ============================================================ */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .form-group.span-2 { grid-column: span 2; }
+    @media (max-width: 640px) { .form-group.span-2 { grid-column: span 1; } }
+
+    label { font-family: var(--font-head); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+
+    input, textarea, select {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text);
+      font-family: var(--font-body); font-size: 0.95rem;
+      padding: 11px 14px; width: 100%; outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200,250,95,0.12); }
+    input.error { border-color: var(--red); box-shadow: 0 0 0 3px rgba(232,93,93,0.12); }
+    input.success { border-color: var(--green); box-shadow: 0 0 0 3px rgba(93,206,122,0.12); }
+
+    .error-msg { font-family: var(--font-mono); font-size: 0.75rem; color: var(--red); display: none; }
+    .error-msg.show { display: block; }
+    .success-msg { font-family: var(--font-mono); font-size: 0.75rem; color: var(--green); display: none; }
+    .success-msg.show { display: block; }
+
+    input[type="range"] { padding: 0; height: 6px; accent-color: var(--accent); background: var(--bg3); }
+    input[type="checkbox"], input[type="radio"] { width: 16px; height: 16px; accent-color: var(--accent); cursor: none; }
+
+    .checkbox-row, .radio-row { display: flex; align-items: center; gap: 0.6rem; }
+    .checkbox-row label, .radio-row label { text-transform: none; letter-spacing: 0; font-size: 0.95rem; font-family: var(--font-body); color: var(--text); cursor: none; }
+
+    textarea { resize: vertical; min-height: 100px; }
+    select option { background: var(--bg2); }
+
+    .file-label {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: var(--bg); border: 1px dashed var(--border);
+      border-radius: var(--radius-sm); padding: 14px; cursor: none;
+      transition: border-color var(--transition); font-family: var(--font-head); font-size: 0.85rem; font-weight: 600;
+    }
+    .file-label:hover { border-color: var(--accent2); }
+    .file-label input[type="file"] { display: none; }
+
+    .range-wrap { display: flex; align-items: center; gap: 1rem; }
+    .range-wrap input { flex: 1; }
+    .range-val { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); min-width: 40px; text-align: right; }
+
+    /* Output element */
+    output {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      color: var(--accent);
+      font-weight: 700;
+      min-width: 50px;
+      text-align: center;
+    }
+
+    /* fieldset & legend */
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1.5rem;
+    }
+    legend {
+      font-family: var(--font-head);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      padding: 0 0.75rem;
+    }
+
+    /* datalist hint */
+    .datalist-hint { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+    /* ============================================================
+       TABLE
+    ============================================================ */
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    thead th {
+      background: var(--bg3); font-family: var(--font-head); font-size: 0.75rem;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted); padding: 14px 18px; text-align: left;
+      border-bottom: 1px solid var(--border); cursor: pointer; user-select: none;
+      transition: color var(--transition);
+    }
+    thead th:hover { color: var(--text); }
+    thead th.sort-asc::after { content: ' ↑'; color: var(--accent); }
+    thead th.sort-desc::after { content: ' ↓'; color: var(--accent); }
+    tbody tr { transition: background var(--transition); }
+    tbody tr:hover { background: var(--bg3); }
+    tbody td { padding: 13px 18px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tfoot td { padding: 12px 18px; border-top: 1px solid var(--border); font-family: var(--font-head); font-size: 0.8rem; font-weight: 700; color: var(--muted); background: var(--bg3); }
+
+    .table-search { display: flex; gap: 0.75rem; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
+    .table-search input { max-width: 260px; }
+
+    .badge { display: inline-block; font-family: var(--font-mono); font-size: 0.7rem; padding: 3px 10px; border-radius: 99px; font-weight: 600; letter-spacing: 0.05em; }
+    .badge-green  { background: rgba(93,206,122,0.15); color: var(--green); }
+    .badge-yellow { background: rgba(250,173,95,0.15);  color: var(--warn); }
+    .badge-red    { background: rgba(232,93,93,0.15);   color: var(--red); }
+    .badge-blue   { background: rgba(95,200,250,0.15);  color: var(--accent2); }
+
+    /* ============================================================
+       LISTS
+    ============================================================ */
+    ul.styled, ol.styled { padding-left: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    ul.styled li::marker { color: var(--accent); }
+    ol.styled li::marker { color: var(--accent); font-weight: 700; }
+
+    dl.styled dt { font-family: var(--font-head); font-weight: 700; color: var(--accent2); margin-top: 1rem; }
+    dl.styled dd { margin-left: 1.25rem; color: var(--muted); font-size: 0.95rem; }
+
+    /* ============================================================
+       MEDIA ELEMENTS
+    ============================================================ */
+    audio, video { width: 100%; border-radius: var(--radius-sm); outline: none; }
+    video { background: #000; max-height: 260px; object-fit: cover; }
+
+    figure { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+    figure img { width: 100%; display: block; object-fit: cover; max-height: 300px; transition: transform 0.4s ease; }
+    figure:hover img { transform: scale(1.03); }
+    figcaption { padding: 0.75rem 1.25rem; font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); border-top: 1px solid var(--border); background: var(--bg3); }
+
+    /* picture element */
+    picture img { width: 100%; display: block; border-radius: var(--radius); border: 1px solid var(--border); object-fit: cover; max-height: 200px; }
+
+    /* ============================================================
+       CODE BLOCK
+    ============================================================ */
+    .code-wrap { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border); background: var(--bg3); }
+    .code-dots { display: flex; gap: 6px; }
+    .code-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .code-dot:nth-child(1) { background: #e85d5d; }
+    .code-dot:nth-child(2) { background: var(--warn); }
+    .code-dot:nth-child(3) { background: var(--green); }
+    .code-lang { font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); }
+
+    .copy-btn {
+      font-family: var(--font-mono); font-size: 0.7rem; padding: 4px 10px;
+      background: var(--bg4); border: 1px solid var(--border); border-radius: 4px;
+      color: var(--muted); cursor: none; transition: all var(--transition);
+    }
+    .copy-btn:hover { color: var(--text); border-color: var(--accent); }
+    .copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+    pre { padding: 1.5rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.8; }
+    code { font-family: var(--font-mono); color: var(--accent2); }
+    pre code { color: var(--text); }
+    .kw  { color: var(--accent3); }
+    .fn  { color: var(--accent2); }
+    .str { color: var(--accent); }
+    .cm  { color: var(--muted); font-style: italic; }
+    .num { color: var(--warn); }
+
+    p code, li code {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 4px; padding: 2px 7px; font-size: 0.85em;
+    }
+
+    /* ============================================================
+       DETAILS / ACCORDION
+    ============================================================ */
+    details { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+    details + details { margin-top: 0.75rem; }
+    summary {
+      padding: 1rem 1.25rem; cursor: none; font-family: var(--font-head);
+      font-weight: 700; font-size: 0.95rem; background: var(--bg2);
+      display: flex; justify-content: space-between; align-items: center;
+      list-style: none; transition: background var(--transition);
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: '+'; font-size: 1.2rem; color: var(--accent); transition: transform var(--transition); }
+    details[open] > summary { background: var(--bg3); }
+    details[open] > summary::after { transform: rotate(45deg); }
+    details > div { padding: 1.25rem; border-top: 1px solid var(--border); }
+
+    /* ============================================================
+       PROGRESS / METER
+    ============================================================ */
+    .progress-wrap { display: flex; flex-direction: column; gap: 1rem; }
+    .progress-row { display: flex; flex-direction: column; gap: 0.4rem; }
+    .progress-meta { display: flex; justify-content: space-between; font-family: var(--font-head); font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+
+    progress, meter {
+      width: 100%; height: 8px; border-radius: 99px; overflow: hidden;
+      border: none; appearance: none; -webkit-appearance: none;
+    }
+    progress { background: var(--bg3); }
+    progress::-webkit-progress-bar { background: var(--bg3); }
+    progress::-webkit-progress-value { background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 99px; }
+    progress::-moz-progress-bar { background: var(--accent); border-radius: 99px; }
+    meter { background: var(--bg3); }
+    meter::-webkit-meter-bar { background: var(--bg3); }
+    meter::-webkit-meter-optimum-value { background: var(--green); border-radius: 99px; }
+    meter::-webkit-meter-suboptimum-value { background: var(--warn); border-radius: 99px; }
+    meter::-webkit-meter-even-less-good-value { background: var(--red); border-radius: 99px; }
+
+    /* ============================================================
+       IFRAME
+    ============================================================ */
+    .iframe-wrap { border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; background: var(--bg2); }
+    .iframe-bar { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 1rem; background: var(--bg3); border-bottom: 1px solid var(--border); }
+    .iframe-url { flex: 1; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px 10px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+    iframe { display: block; width: 100%; border: none; min-height: 280px; }
+
+    /* ============================================================
+       CANVAS / SVG
+    ============================================================ */
+    canvas { display: block; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg); width: 100%; }
+
+    /* ============================================================
+       ASIDE / CALLOUT
+    ============================================================ */
+    aside.callout { display: flex; gap: 1rem; background: rgba(95,200,250,0.06); border: 1px solid rgba(95,200,250,0.25); border-left: 4px solid var(--accent2); border-radius: var(--radius-sm); padding: 1.25rem; }
+    aside.callout .icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+    aside.callout p { max-width: none; font-size: 0.9rem; color: var(--muted); }
+    aside.callout strong { color: var(--text); }
+
+    /* ============================================================
+       MODAL / DIALOG
+    ============================================================ */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(10px);
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+    #modal-overlay.open { display: flex; }
+    #modal {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2.5rem; max-width: 500px;
+      width: 100%; position: relative; animation: modal-in 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes modal-in { from { transform: scale(0.85) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+    #modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 50%; width: 32px; height: 32px; cursor: none;
+      color: var(--muted); font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--transition), color var(--transition);
+    }
+    #modal-close:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+    /* Native dialog element */
+    dialog {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; color: var(--text);
+      max-width: 460px; width: 90%; box-shadow: var(--shadow);
+    }
+    dialog::backdrop { background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer { background: var(--bg2); border-top: 1px solid var(--border); padding: 4rem 0 2rem; }
+    .footer-grid { display: grid; grid-template-columns: 2fr repeat(3,1fr); gap: 3rem; padding-bottom: 3rem; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
+    @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr; } }
+    .footer-brand p { font-size: 0.9rem; color: var(--muted); margin-top: 0.75rem; }
+    .footer-col h5 { font-family: var(--font-head); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-col ul li a { color: var(--muted); font-size: 0.9rem; transition: color var(--transition); }
+    .footer-col ul li a:hover { color: var(--accent); }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+
+    /* ============================================================
+       SCROLL REVEAL
+    ============================================================ */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ============================================================
+       MISC
+    ============================================================ */
+    .divider { height: 1px; background: var(--border); margin: 2rem 0; }
+    .highlight { color: var(--accent); }
+    .text-muted { color: var(--muted); }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    mark { background: rgba(200,250,95,0.25); color: var(--accent); padding: 0 4px; border-radius: 3px; }
+    abbr[title] { text-decoration: underline dotted; cursor: help; }
+    blockquote { border-left: 3px solid var(--accent); padding: 1rem 1.5rem; background: var(--bg3); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-style: italic; color: var(--muted); }
+    blockquote cite { display: block; margin-top: 0.5rem; font-style: normal; font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent2); }
+    sub, sup { font-size: 0.75em; }
+    kbd { background: var(--bg3); border: 1px solid var(--border); border-bottom: 2px solid var(--border); border-radius: 4px; padding: 2px 7px; font-family: var(--font-mono); font-size: 0.8em; }
+
+    .chip { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--bg3); border: 1px solid var(--border); border-radius: 99px; padding: 4px 12px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+    .chip-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+
+    /* ============================================================
+       FEATURES SECTION
+    ============================================================ */
+    .feature-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem;
+      transition: all var(--transition); position: relative; overflow: hidden;
+    }
+    .feature-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 0% 0%, rgba(200,250,95,0.06), transparent 60%);
+      opacity: 0; transition: opacity var(--transition);
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: rgba(200,250,95,0.2); }
+    .feature-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
+    .feature-card h4 { margin-bottom: 0.5rem; }
+    .feature-card p { font-size: 0.9rem; color: var(--muted); max-width: none; }
+
+    /* ============================================================
+       TIMELINE
+    ============================================================ */
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--border); }
+    .timeline-item { position: relative; margin-bottom: 2.5rem; }
+    .timeline-item::before {
+      content: ''; position: absolute; left: -2.42rem; top: 6px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--accent); border: 3px solid var(--bg);
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+    .timeline-item:last-child { margin-bottom: 0; }
+    .timeline-date { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); margin-bottom: 0.4rem; }
+    .timeline-title { font-family: var(--font-head); font-weight: 700; font-size: 1rem; margin-bottom: 0.3rem; }
+    .timeline-desc { font-size: 0.9rem; color: var(--muted); max-width: none; }
+
+    /* ============================================================
+       TESTIMONIALS CAROUSEL
+    ============================================================ */
+    .carousel-wrap { position: relative; overflow: hidden; border-radius: var(--radius); }
+    .carousel-track { display: flex; transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); }
+    .carousel-slide { min-width: 100%; padding: 2.5rem; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); }
+    .testimonial-quote { font-size: 1.1rem; font-style: italic; color: var(--text); margin-bottom: 1.5rem; line-height: 1.8; }
+    .testimonial-author { display: flex; align-items: center; gap: 1rem; }
+    .testimonial-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 800; color: #0b0c10; font-size: 1rem; }
+    .testimonial-name { font-family: var(--font-head); font-weight: 700; font-size: 0.95rem; }
+    .testimonial-role { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+    .carousel-dots { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; }
+    .carousel-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); cursor: none; transition: all var(--transition); }
+    .carousel-dot.active { background: var(--accent); width: 24px; border-radius: 4px; }
+    .carousel-arrows { display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem; }
+
+    /* ============================================================
+       PURE CSS BAR CHART
+    ============================================================ */
+    .bar-chart { display: flex; align-items: flex-end; gap: 1rem; height: 200px; padding: 1rem 0 0; border-bottom: 2px solid var(--border); border-left: 2px solid var(--border); }
+    .bar-item { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; flex: 1; }
+    .bar {
+      width: 100%; border-radius: 6px 6px 0 0;
+      background: linear-gradient(180deg, var(--accent), rgba(200,250,95,0.4));
+      position: relative; transition: height 1.2s cubic-bezier(0.4,0,0.2,1);
+      min-width: 30px; cursor: none;
+    }
+    .bar::before {
+      content: attr(data-val);
+      position: absolute; top: -26px; left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent);
+      white-space: nowrap;
+    }
+    .bar:hover { filter: brightness(1.2); }
+    .bar-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); text-align: center; white-space: nowrap; }
+    .bar-1 { background: linear-gradient(180deg, var(--accent), rgba(200,250,95,0.3)); }
+    .bar-2 { background: linear-gradient(180deg, var(--accent2), rgba(95,200,250,0.3)); }
+    .bar-3 { background: linear-gradient(180deg, var(--accent3), rgba(250,95,200,0.3)); }
+    .bar-4 { background: linear-gradient(180deg, var(--warn), rgba(250,173,95,0.3)); }
+    .bar-5 { background: linear-gradient(180deg, var(--green), rgba(93,206,122,0.3)); }
+
+    /* ============================================================
+       SVG DONUT CHART
+    ============================================================ */
+    .donut-wrap { display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
+    .donut-legend { display: flex; flex-direction: column; gap: 0.75rem; }
+    .legend-item { display: flex; align-items: center; gap: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ============================================================
+       LIVE CLOCK
+    ============================================================ */
+    .clock-wrap { display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
+    .digital-clock { font-family: var(--font-mono); font-size: 3rem; font-weight: 400; color: var(--accent); letter-spacing: 0.1em; }
+    .clock-date { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+
+    /* ============================================================
+       DRAG AND DROP
+    ============================================================ */
+    .drag-board { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .drag-col { flex: 1; min-width: 180px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; min-height: 120px; }
+    .drag-col h6 { margin-bottom: 0.75rem; color: var(--muted); }
+    .drag-item {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 0.6rem 0.9rem;
+      font-family: var(--font-head); font-size: 0.82rem; font-weight: 600;
+      cursor: grab; margin-bottom: 0.5rem; user-select: none;
+      transition: all var(--transition);
+    }
+    .drag-item:hover { border-color: var(--accent); color: var(--accent); }
+    .drag-item.dragging { opacity: 0.4; transform: scale(0.95); }
+    .drag-col.drag-over { border-color: var(--accent); background: rgba(200,250,95,0.04); }
+
+    /* ============================================================
+       PRICING
+    ============================================================ */
+    .pricing-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; position: relative; transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition); }
+    .pricing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .pricing-card.featured { border-color: var(--accent); background: linear-gradient(160deg, rgba(200,250,95,0.06), var(--bg2)); }
+    .pricing-card.featured::before { content: 'POPULAR'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #0b0c10; font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; padding: 3px 12px; border-radius: 99px; }
+    .price { font-family: var(--font-head); font-size: 2.8rem; font-weight: 800; color: var(--accent); line-height: 1; margin: 1rem 0 0.25rem; }
+    .price small { font-size: 1rem; color: var(--muted); }
+    .pricing-features { list-style: none; margin: 1.5rem 0; display: flex; flex-direction: column; gap: 0.6rem; }
+    .pricing-features li { display: flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; }
+    .pricing-features li::before { content: '✓'; color: var(--accent); font-weight: 700; }
+    .pricing-features li.disabled { color: var(--muted); }
+    .pricing-features li.disabled::before { content: '–'; color: var(--border); }
+
+    /* ============================================================
+       TOOLTIP
+    ============================================================ */
+    [data-tooltip] { position: relative; }
+    [data-tooltip]::before {
+      content: attr(data-tooltip); position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%) scale(0.9); background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text); font-family: var(--font-mono); font-size: 0.72rem; padding: 5px 10px;
+      border-radius: var(--radius-sm); white-space: nowrap; pointer-events: none;
+      opacity: 0; transition: opacity var(--transition), transform var(--transition); z-index: 10;
+    }
+    [data-tooltip]:hover::before { opacity: 1; transform: translateX(-50%) scale(1); }
+
+    /* ============================================================
+       LIVE COUNTER
+    ============================================================ */
+    #live-counter { display: flex; align-items: center; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
+    .counter-display { font-family: var(--font-head); font-size: 4rem; font-weight: 800; color: var(--accent); min-width: 90px; text-align: center; transition: transform 0.1s ease; }
+    .counter-display.bump { transform: scale(1.15); }
+
+    /* ============================================================
+       KEYBOARD SHORTCUTS PANEL
+    ============================================================ */
+    #shortcuts-panel {
+      display: none; position: fixed; bottom: 5rem; right: 2rem;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; min-width: 280px;
+      z-index: 1500; box-shadow: var(--shadow);
+      animation: modal-in 0.25s ease;
+    }
+    #shortcuts-panel.open { display: block; }
+    #shortcuts-panel h5 { margin-bottom: 1rem; }
+    .shortcut-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; font-size: 0.85rem; }
+    .shortcut-row span { color: var(--muted); }
+
+    /* ============================================================
+       COOKIE BANNER
+    ============================================================ */
+    #cookie-banner {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--bg2); border-top: 1px solid var(--border);
+      padding: 1.25rem 2rem; z-index: 1800;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap;
+      animation: slide-up 0.5s 1.5s ease both;
+    }
+    @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    #cookie-banner.hidden { display: none; }
+    #cookie-banner p { font-size: 0.88rem; color: var(--muted); max-width: 70ch; }
+
+    /* ============================================================
+       SKIP LINK / A11Y
+    ============================================================ */
+    .skip-link { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #0b0c10; font-weight: 700; padding: 10px 24px; border-radius: 0 0 8px 8px; z-index: 9999; transition: top 0.2s; }
+    .skip-link:focus { top: 0; }
+
+    /* ============================================================
+       TOAST
+    ============================================================ */
+    #toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 3000; display: flex; flex-direction: column; gap: 0.5rem; }
+    .toast-item {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 1rem 1.5rem;
+      font-family: var(--font-head); font-size: 0.9rem; font-weight: 600;
+      box-shadow: var(--shadow); display: flex; align-items: center; gap: 0.75rem;
+      opacity: 0; transform: translateX(40px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none; min-width: 260px; max-width: 360px;
+    }
+    .toast-item.show { opacity: 1; transform: translateX(0); pointer-events: auto; }
+    .toast-item.success { border-left: 3px solid var(--green); }
+    .toast-item.error   { border-left: 3px solid var(--red); }
+    .toast-item.info    { border-left: 3px solid var(--accent2); }
+    .toast-item.warn    { border-left: 3px solid var(--warn); }
+
+    /* ============================================================
+       TIME & RUBY ELEMENTS
+    ============================================================ */
+    time { font-family: var(--font-mono); color: var(--accent2); font-size: 0.9em; }
+    ruby { font-size: 1.2em; }
+    rt { font-size: 0.6em; color: var(--accent); }
+
+    /* ============================================================
+       TEMPLATE DEMO
+    ============================================================ */
+    .template-output { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+    .template-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; display: flex; align-items: center; gap: 1rem; }
+    .template-card .t-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 800; color: #0b0c10; font-size: 0.85rem; flex-shrink: 0; }
+    .template-card .t-name { font-family: var(--font-head); font-weight: 700; font-size: 0.9rem; }
+    .template-card .t-role { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); }
+
+    /* ============================================================
+       MAP & AREA DEMO
+    ============================================================ */
+    .map-container { position: relative; display: inline-block; }
+    .map-container img { border-radius: var(--radius-sm); border: 1px solid var(--border); }
+
+    /* ============================================================
+       MEDIA QUERIES (global)
+    ============================================================ */
+    @media (max-width: 600px) {
+      h1 { font-size: 2.4rem; }
+      .section { padding: 4rem 0; }
+      .hero-stats { gap: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- Scroll Progress Bar -->
+<div id="scroll-progress"></div>
+
+<!-- Accessibility Skip Link -->
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- ============================================================
+     NAVIGATION
+============================================================ -->
+<nav id="main-nav" role="navigation" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">Elements<span>OS</span> <small style="font-size:0.6rem;color:var(--muted);font-family:var(--font-mono)">v1</small></a>
+
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#typography">Typography</a></li>
+      <li><a href="#forms">Forms</a></li>
+      <li><a href="#data">Data</a></li>
+      <li><a href="#media">Media</a></li>
+      <li><a href="#interactive">Interactive</a></li>
+      <li><a href="#charts">Charts</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <!-- Theme Switcher -->
+      <div class="theme-drop">
+        <button id="theme-btn" aria-label="Change theme" title="Switch Theme">🎨</button>
+        <div class="theme-menu" id="theme-menu">
+          <div class="theme-opt" data-t="dark">
+            <span class="theme-dot" style="background:#c8fa5f"></span> Dark
+          </div>
+          <div class="theme-opt" data-t="light">
+            <span class="theme-dot" style="background:#1a1917"></span> Light
+          </div>
+          <div class="theme-opt" data-t="cyber">
+            <span class="theme-dot" style="background:#ff2d78"></span> Cyber
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-sm" id="nav-cta">Open Modal</button>
+      <button id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<header id="hero">
+  <div class="container">
+    <p class="hero-eyebrow">Complete HTML5 Reference v1.0</p>
+    <h1 class="hero-title">
+      Every HTML element.<br>
+      <em><span class="typewriter">One Html page</span></em>
+    </h1>
+    <p class="hero-desc">
+      A living reference covering every major HTML5 element — forms, media,
+      semantics, tables, canvas, SVG, and more. Styled as a real product site
+      for developers who care deeply about craft.
+    </p>
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-lg" id="hero-explore">↓ Explore Elements</button>
+      <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element" target="_blank" rel="noopener" class="btn btn-outline btn-lg">MDN Reference ↗</a>
+      <button class="btn btn-ghost btn-lg" id="shortcuts-btn">⌨ Shortcuts</button>
+    </div>
+
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num" data-count="112">0</div>
+        <div class="stat-label">HTML Elements</div>
+      </div>
+      <div>
+        <div class="stat-num" data-count="38">0</div>
+        <div class="stat-label">Input Types</div>
+      </div>
+      <div>
+        <div class="stat-num" data-count="100">0</div>
+        <div class="stat-label">% Semantic</div>
+      </div>
+      <div>
+        <div class="stat-num" data-count="8">0</div>
+        <div class="stat-label">Themes</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="float-badge">
+    &lt;<span style="color:var(--accent3)">article</span>
+    <span style="color:var(--warn)">role</span>=<span style="color:var(--accent)">"main"</span>&gt;
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ============================================================
+     SECTION — FEATURES
+============================================================ -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="tag green">Features</span>
+    </div>
+    <h2 style="margin-bottom:0.75rem" class="reveal">Why study this reference?</h2>
+    <p class="text-muted reveal" style="margin-bottom:3rem">Every concept illustrated with real working code, not lorem ipsum.</p>
+
+    <div class="grid-4">
+      <div class="feature-card reveal">
+        <span class="feature-icon">🧱</span>
+        <h4>Semantic HTML</h4>
+        <p>Proper use of header, nav, main, article, section, aside, and footer elements.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">🎨</span>
+        <h4>3 Themes</h4>
+        <p>Dark, Light, and Cyber modes built with CSS custom properties — fully switchable.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">♿</span>
+        <h4>Accessible</h4>
+        <p>ARIA labels, skip links, keyboard navigation, and screen reader friendly markup.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">📱</span>
+        <h4>Responsive</h4>
+        <p>Mobile-first layout with fluid grids and clamp-based typography at every breakpoint.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">⚡</span>
+        <h4>Zero Libraries</h4>
+        <p>Pure HTML, CSS, and vanilla JavaScript. No frameworks, no dependencies.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">🖱️</span>
+        <h4>Custom Cursor</h4>
+        <p>Smooth custom cursor with hover states, built entirely with CSS and JS.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">🔑</span>
+        <h4>Keyboard Shortcuts</h4>
+        <p>Press <kbd>Ctrl</kbd>+<kbd>D</kbd> for dark mode, <kbd>Ctrl</kbd>+<kbd>K</kbd> for shortcuts panel.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">📊</span>
+        <h4>Data Viz</h4>
+        <p>Pure CSS bar chart, SVG donut chart, and live canvas particle animation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 1 — TYPOGRAPHY
+============================================================ -->
+<section class="section" id="typography">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="tag">Typography</span>
+    </div>
+
+    <div class="grid-2">
+      <!-- Headings -->
+      <article class="card reveal">
+        <h4 style="margin-bottom:1.5rem">Heading Scale (h1–h6)</h4>
+        <h1 style="font-size:2rem">Heading 1</h1>
+        <h2 style="font-size:1.6rem">Heading 2</h2>
+        <h3 style="font-size:1.3rem">Heading 3</h3>
+        <h4>Heading 4</h4>
+        <h5>Heading 5</h5>
+        <h6>Heading 6</h6>
+      </article>
+
+      <!-- Inline elements -->
+      <article class="card reveal">
+        <h4 style="margin-bottom:1.5rem">Inline Text Elements</h4>
+        <p>This is a paragraph with <strong>bold text</strong>, <em>italic text</em>, and <u>underlined text</u>.</p>
+        <br>
+        <p>Use <mark>highlighted text</mark> to draw attention. Press <kbd>Ctrl</kbd>+<kbd>K</kbd> to open search.</p>
+        <br>
+        <p>Water is H<sub>2</sub>O. Area = πr<sup>2</sup>. We support <abbr title="HyperText Markup Language">HTML</abbr>.</p>
+        <br>
+        <p>Here's some <code>inline code</code> inside a paragraph. <span class="highlight">Highlighted span.</span></p>
+        <br>
+        <p><del>Old price: $99</del> &nbsp; <ins>New price: $49</ins></p>
+        <br>
+        <p><small>Smaller text for captions. <cite>— Some Author</cite></small></p>
+        <br>
+        <p>Published: <time datetime="2024-12-01">December 1, 2024</time></p>
+        <br>
+        <p>
+          <ruby>漢字<rt>かんじ</rt></ruby> — Ruby annotations for East Asian typography.
+        </p>
+      </article>
+
+      <!-- Blockquote -->
+      <article class="card reveal">
+        <h4 style="margin-bottom:1.5rem">Blockquote & HR</h4>
+        <blockquote>
+          "The Web is the most valuable tool we have for achieving the kind of understanding we need."
+          <cite>— Tim Berners-Lee</cite>
+        </blockquote>
+        <br>
+        <p>Line break example:<br>This text appears on a new line after a <code>&lt;br&gt;</code> tag.</p>
+        <hr>
+        <p class="text-muted" style="font-size:0.85rem">Above: a semantic <code>&lt;hr&gt;</code> thematic break element.</p>
+      </article>
+
+      <!-- Lists -->
+      <article class="card reveal">
+        <h4 style="margin-bottom:1.5rem">All Three List Types</h4>
+        <h6 style="margin-bottom:0.5rem">Unordered</h6>
+        <ul class="styled">
+          <li>Semantic HTML structure</li>
+          <li>Accessible markup patterns</li>
+          <li>Progressive enhancement</li>
+        </ul>
+        <br>
+        <h6 style="margin-bottom:0.5rem">Ordered</h6>
+        <ol class="styled">
+          <li>Write the HTML structure</li>
+          <li>Add meaning with semantics</li>
+          <li>Style with CSS</li>
+        </ol>
+        <br>
+        <h6 style="margin-bottom:0.5rem">Description List</h6>
+        <dl class="styled">
+          <dt>HTML</dt>
+          <dd>HyperText Markup Language — the skeleton of the web.</dd>
+          <dt>CSS</dt>
+          <dd>Cascading Style Sheets — the appearance layer.</dd>
+          <dt>JS</dt>
+          <dd>JavaScript — the behaviour layer.</dd>
+        </dl>
+      </article>
+    </div>
+
+    <aside class="callout reveal" style="margin-top:1.5rem">
+      <span class="icon">💡</span>
+      <div>
+        <p><strong>Pro tip:</strong> Always use semantic HTML elements like <code>&lt;article&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;nav&gt;</code>, and <code>&lt;aside&gt;</code> — they dramatically improve <abbr title="Search Engine Optimization">SEO</abbr> and accessibility without extra effort. The <code>&lt;time&gt;</code> element with <code>datetime</code> attribute helps search engines understand dates.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION — BUTTONS
+============================================================ -->
+<section class="section" id="buttons">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="tag blue">Buttons</span>
+    </div>
+
+    <div class="grid-2">
+      <article class="card reveal">
+        <h4 style="margin-bottom:1.5rem">Button Variants</h4>
+        <div class="btn-group">
+          <button class="btn btn-primary">Primary</button>
+          <button class="btn btn-outline">Outline</button>
+          <button class="btn btn-ghost">Ghost</button>
+          <button class="btn btn-danger">Danger</button>
+          <button class="btn btn-cyan">Cyan</button>
+          <button class="btn btn-pink">Pink</button>
+        </div>
+        <br>
+        <div class="btn-group">
+          <button class="btn btn-primary btn-sm">Small</button>
+          <button class="btn btn-primary">Default</button>
+          <button class="btn btn-primary btn-lg">Large</button>
+        </div>
+        <br>
+        <div class="btn-group">
+          <button class="btn btn-icon" title="Like">♡</button>
+          <button class="btn btn-icon" title="Share">↗</button>
+          <button class="btn btn-icon" title="Settings">⚙</button>
+          <button class="btn btn-icon" title="Star">★</button>
+        </div>
+      </article>
+
+      <article class="card reveal">
+        <h4 style="margin-bottom:1.5rem">Interactive Buttons</h4>
+        <div class="btn-group" style="flex-direction:column;align-items:flex-start">
+          <button class="btn btn-primary" id="ripple-btn">Click for Ripple Effect ✦</button>
+          <button class="btn btn-outline" id="load-btn">Simulate Loading State</button>
+          <button class="btn btn-ghost" id="modal-open-btn">Open Custom Modal ↗</button>
+          <button class="btn btn-cyan" id="dialog-open-btn">Open Native &lt;dialog&gt; ↗</button>
+          <button class="btn btn-outline" id="toast-info-btn">Toast: Info</button>
+          <button class="btn btn-primary" id="toast-success-btn">Toast: Success</button>
+          <button class="btn btn-danger" id="toast-error-btn">Toast: Error</button>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 3 — FORMS
+============================================================ -->
+<section class="section" id="forms">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="tag pink">Forms</span>
+    </div>
+
+    <article class="card reveal">
+      <h3 style="margin-bottom:0.5rem">Contact Form — All Input Types</h3>
+      <p class="text-muted" style="margin-bottom:2rem;font-size:0.9rem">Real-time validation, datalist autocomplete, output element, fieldset, and more.</p>
+
+      <form id="contact-form" novalidate>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label for="f-name">First Name</label>
+            <input type="text" id="f-name" name="first_name" placeholder="Jane" autocomplete="given-name" />
+            <span class="error-msg" id="err-name">Please enter your first name (min 2 chars).</span>
+            <span class="success-msg" id="ok-name">✓ Looks good!</span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-last">Last Name</label>
+            <input type="text" id="f-last" name="last_name" placeholder="Doe" autocomplete="family-name" />
+          </div>
+
+          <div class="form-group">
+            <label for="f-email">Email Address</label>
+            <input type="email" id="f-email" name="email" placeholder="jane@example.com" autocomplete="email" />
+            <span class="error-msg" id="err-email">Please enter a valid email address.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-pass">Password</label>
+            <input type="password" id="f-pass" name="password" placeholder="Min. 8 characters" />
+            <span class="error-msg" id="err-pass">Password must be at least 8 characters.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-num">Phone Number</label>
+            <input type="tel" id="f-num" name="phone" placeholder="+1 555 000 0000" autocomplete="tel" />
+          </div>
+
+          <div class="form-group">
+            <label for="f-date">Preferred Date</label>
+            <input type="date" id="f-date" name="date" />
+          </div>
+
+          <div class="form-group">
+            <label for="f-age">Age</label>
+            <input type="number" id="f-age" name="age" min="1" max="120" placeholder="25" />
+          </div>
+
+          <div class="form-group">
+            <label for="f-color">Favourite Color</label>
+            <input type="color" id="f-color" name="color" value="#c8fa5f" style="height:44px;padding:4px" />
+          </div>
+
+          <!-- Datalist -->
+          <div class="form-group">
+            <label for="f-city">City (with datalist)</label>
+            <input type="text" id="f-city" name="city" list="city-list" placeholder="Type to search…" autocomplete="off" />
+            <datalist id="city-list">
+              <option value="Karachi">
+              <option value="Lahore">
+              <option value="Islamabad">
+              <option value="Rawalpindi">
+              <option value="Peshawar">
+              <option value="Quetta">
+              <option value="New York">
+              <option value="London">
+              <option value="Tokyo">
+            </datalist>
+            <span class="datalist-hint">↑ Try typing a city name</span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-select">Department</label>
+            <select id="f-select" name="department">
+              <option value="">Choose…</option>
+              <option>Engineering</option>
+              <option>Design</option>
+              <option>Marketing</option>
+              <option>Support</option>
+            </select>
+          </div>
+
+          <div class="form-group span-2">
+            <label for="f-msg">Message</label>
+            <textarea id="f-msg" name="message" placeholder="Tell us about your project…"></textarea>
+          </div>
+
+          <!-- Fieldset + legend + radio -->
+          <div class="form-group span-2">
+            <fieldset>
+              <legend>Priority Level</legend>
+              <div style="display:flex;gap:2rem;flex-wrap:wrap;margin-top:0.5rem">
+                <div class="radio-row">
+                  <input type="radio" name="priority" id="r-low" value="low" />
+                  <label for="r-low">Low</label>
+                </div>
+                <div class="radio-row">
+                  <input type="radio" name="priority" id="r-med" value="medium" checked />
+                  <label for="r-med">Medium</label>
+                </div>
+                <div class="radio-row">
+                  <input type="radio" name="priority" id="r-high" value="high" />
+                  <label for="r-high">High</label>
+                </div>
+                <div class="radio-row">
+                  <input type="radio" name="priority" id="r-crit" value="critical" />
+                  <label for="r-crit">🔥 Critical</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Checkboxes -->
+          <div class="form-group span-2">
+            <label>Interests</label>
+            <div style="display:flex;gap:2rem;flex-wrap:wrap;margin-top:0.25rem">
+              <div class="checkbox-row"><input type="checkbox" id="chk-html" checked /><label for="chk-html">HTML</label></div>
+              <div class="checkbox-row"><input type="checkbox" id="chk-css" /><label for="chk-css">CSS</label></div>
+              <div class="checkbox-row"><input type="checkbox" id="chk-js" /><label for="chk-js">JavaScript</label></div>
+              <div class="checkbox-row"><input type="checkbox" id="chk-a11y" /><label for="chk-a11y">Accessibility</label></div>
+              <div class="checkbox-row"><input type="checkbox" id="chk-svg" /><label for="chk-svg">SVG</label></div>
+            </div>
+          </div>
+
+          <!-- Range + Output -->
+          <div class="form-group">
+            <label for="f-range">Satisfaction Score</label>
+            <div class="range-wrap">
+              <input type="range" id="f-range" name="satisfaction" min="1" max="10" value="7"
+                     oninput="document.getElementById('range-out').value=this.value" />
+              <output id="range-out" for="f-range">7</output>
+            </div>
+          </div>
+
+          <!-- File -->
+          <div class="form-group">
+            <label>Attachment</label>
+            <label class="file-label">
+              <span>📎</span>
+              <span id="file-name">Choose a file (.pdf, .png, .jpg)…</span>
+              <input type="file" id="f-file" name="attachment" accept=".pdf,.png,.jpg" />
+            </label>
+          </div>
+
+          <!-- URL + search -->
+          <div class="form-group">
+            <label for="f-url">Portfolio URL</label>
+            <input type="url" id="f-url" name="url" placeholder="https://yoursite.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="f-search">Quick Search</label>
+            <input type="search" id="f-search" name="search" placeholder="Search elements…" />
+          </div>
+
+          <!-- Terms checkbox -->
+          <div class="form-group span-2">
+            <div class="checkbox-row">
+              <input type="checkbox" id="chk-terms" />
+              <label for="chk-terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+            </div>
+            <span class="error-msg" id="err-terms">You must accept the terms to continue.</span>
+          </div>
+
+          <div class="form-group span-2" style="margin-top:0.5rem">
+            <input type="submit" value="Send Message →" class="btn btn-primary btn-lg" style="cursor:none;font-family:var(--font-head);width:auto;border:none" />
+          </div>
+        </div>
+      </form>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 4 — DATA / TABLE
+============================================================ -->
+<section class="section" id="data">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="tag warn">Data</span>
+    </div>
+
+    <!-- Sortable + Filterable Table -->
+    <article class="reveal">
+      <h3 style="margin-bottom:1rem">API Endpoint Overview</h3>
+      <div class="table-search">
+        <input type="search" id="table-filter" placeholder="Filter rows…" style="max-width:260px" />
+        <span class="text-muted" style="font-family:var(--font-mono);font-size:0.78rem" id="row-count"></span>
+      </div>
+      <div class="table-wrap">
+        <table id="api-table">
+          <thead>
+            <tr>
+              <th data-col="0">Endpoint</th>
+              <th data-col="1">Method</th>
+              <th data-col="2">Auth</th>
+              <th data-col="3">Rate Limit</th>
+              <th data-col="4">Status</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <tr>
+              <td><code>/api/v1/users</code></td>
+              <td><span class="chip"><span class="chip-dot" style="background:var(--accent2)"></span>GET</span></td>
+              <td>Bearer token</td>
+              <td>1 000 / hr</td>
+              <td><span class="badge badge-green">Stable</span></td>
+            </tr>
+            <tr>
+              <td><code>/api/v1/posts</code></td>
+              <td><span class="chip"><span class="chip-dot" style="background:var(--accent)"></span>POST</span></td>
+              <td>OAuth 2.0</td>
+              <td>500 / hr</td>
+              <td><span class="badge badge-green">Stable</span></td>
+            </tr>
+            <tr>
+              <td><code>/api/v1/media</code></td>
+              <td><span class="chip"><span class="chip-dot" style="background:var(--warn)"></span>PUT</span></td>
+              <td>API key</td>
+              <td>200 / hr</td>
+              <td><span class="badge badge-yellow">Beta</span></td>
+            </tr>
+            <tr>
+              <td><code>/api/v1/analytics</code></td>
+              <td><span class="chip"><span class="chip-dot" style="background:var(--accent2)"></span>GET</span></td>
+              <td>Bearer token</td>
+              <td>100 / hr</td>
+              <td><span class="badge badge-blue">Preview</span></td>
+            </tr>
+            <tr>
+              <td><code>/api/v1/webhooks</code></td>
+              <td><span class="chip"><span class="chip-dot" style="background:var(--red)"></span>DELETE</span></td>
+              <td>OAuth 2.0</td>
+              <td>50 / hr</td>
+              <td><span class="badge badge-red">Deprecated</span></td>
+            </tr>
+            <tr>
+              <td><code>/api/v1/auth</code></td>
+              <td><span class="chip"><span class="chip-dot" style="background:var(--accent)"></span>POST</span></td>
+              <td>None</td>
+              <td>10 / hr</td>
+              <td><span class="badge badge-green">Stable</span></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="5">Click any column header to sort ↑↓ — Use search to filter rows</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </article>
+
+    <!-- Progress bars & Meter -->
+    <article class="card reveal" style="margin-top:1.5rem">
+      <h4 style="margin-bottom:1.5rem">Progress & Meter Elements</h4>
+      <div class="progress-wrap">
+        <div class="progress-row">
+          <div class="progress-meta"><span>HTML Mastery</span><span>92%</span></div>
+          <progress value="92" max="100"></progress>
+        </div>
+        <div class="progress-row">
+          <div class="progress-meta"><span>CSS Expertise</span><span>78%</span></div>
+          <progress value="78" max="100"></progress>
+        </div>
+        <div class="progress-row">
+          <div class="progress-meta"><span>JavaScript</span><span>85%</span></div>
+          <progress value="85" max="100"></progress>
+        </div>
+        <div class="progress-row">
+          <div class="progress-meta"><span>Accessibility Score</span><span>Good</span></div>
+          <meter value="0.82" min="0" max="1" low="0.3" high="0.7" optimum="0.9" title="Accessibility score: 82%"></meter>
+        </div>
+        <div class="progress-row">
+          <div class="progress-meta"><span>Performance Score</span><span>Needs Work</span></div>
+          <meter value="0.45" min="0" max="1" low="0.5" high="0.75" optimum="1" title="Performance score: 45%"></meter>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 5 — MEDIA
+============================================================ -->
+<section class="section" id="media">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="tag">Media</span>
+    </div>
+
+    <div class="grid-2">
+      <!-- Figure / figcaption -->
+      <div class="reveal">
+        <h4 style="margin-bottom:1rem">Figure & Figcaption</h4>
+        <figure>
+          <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80"
+               alt="A code editor on a dark screen showing JavaScript" loading="lazy" width="800" height="400" />
+          <figcaption>fig. 1 — A developer's workspace. Photo: Unsplash / Arnold Francisca.</figcaption>
+        </figure>
+      </div>
+
+      <!-- Picture element -->
+      <div class="reveal">
+        <h4 style="margin-bottom:1rem">&lt;picture&gt; — Responsive Images</h4>
+        <div class="card" style="padding:1.5rem">
+          <p style="margin-bottom:1rem;font-size:0.9rem;color:var(--muted)">The <code>&lt;picture&gt;</code> element serves different images based on screen size or format support.</p>
+          <picture>
+            <source media="(min-width: 800px)" srcset="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&q=70" />
+            <source media="(min-width: 400px)" srcset="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&q=70" />
+            <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=300&q=70" alt="Laptop with code on screen" loading="lazy" />
+          </picture>
+          <p style="margin-top:0.75rem;font-size:0.78rem;color:var(--muted);font-family:var(--font-mono)">Resize the window to see different images load.</p>
+        </div>
+      </div>
+
+      <!-- Audio + Video -->
+      <div class="reveal" style="display:flex;flex-direction:column;gap:1.5rem">
+        <div>
+          <h4 style="margin-bottom:1rem">Audio Element</h4>
+          <div class="card" style="padding:1.5rem">
+            <p style="margin-bottom:1rem;font-size:0.9rem;color:var(--muted)">Browser-native audio player with multiple source fallbacks.</p>
+            <audio controls preload="none" style="width:100%">
+              <source src="https://www.w3schools.com/html/horse.mp3" type="audio/mpeg" />
+              <p>Your browser does not support the audio element.</p>
+            </audio>
+          </div>
+        </div>
+        <div>
+          <h4 style="margin-bottom:1rem">Video Element</h4>
+          <div class="card" style="padding:1.5rem">
+            <video controls preload="none" poster="https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=800&q=60">
+              <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
+              <p>Your browser does not support the video element.</p>
+            </video>
+          </div>
+        </div>
+      </div>
+
+      <!-- SVG -->
+      <div class="reveal">
+        <h4 style="margin-bottom:1rem">SVG — Animated Waveform</h4>
+        <div class="card">
+          <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" aria-label="Animated SVG waveform" role="img">
+            <defs>
+              <linearGradient id="svgGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#c8fa5f" />
+                <stop offset="50%" stop-color="#5fc8fa" />
+                <stop offset="100%" stop-color="#fa5fc8" />
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="100" x2="400" y2="100" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            <line x1="0" y1="50" x2="400" y2="50" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+            <line x1="0" y1="150" x2="400" y2="150" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+            <path d="M0,100 C40,40 80,160 120,100 S200,40 240,100 S320,160 360,100 S400,60 400,100"
+                  fill="none" stroke="url(#svgGrad)" stroke-width="3" stroke-linecap="round">
+              <animate attributeName="d"
+                values="M0,100 C40,40 80,160 120,100 S200,40 240,100 S320,160 360,100 S400,60 400,100;M0,100 C40,160 80,40 120,100 S200,160 240,100 S320,40 360,100 S400,140 400,100;M0,100 C40,40 80,160 120,100 S200,40 240,100 S320,160 360,100 S400,60 400,100"
+                dur="4s" repeatCount="indefinite" />
+            </path>
+            <circle cx="120" cy="100" r="5" fill="#c8fa5f">
+              <animate attributeName="cy" values="100;50;100;150;100" dur="4s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="240" cy="100" r="5" fill="#5fc8fa">
+              <animate attributeName="cy" values="100;150;100;50;100" dur="4s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="360" cy="100" r="5" fill="#fa5fc8">
+              <animate attributeName="cy" values="100;50;100;150;100" dur="4s" repeatCount="indefinite"/>
+            </circle>
+            <text x="8" y="190" fill="rgba(255,255,255,0.3)" font-size="10" font-family="monospace">SVG — Animated Waveform</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Canvas -->
+      <div class="reveal">
+        <h4 style="margin-bottom:1rem">Canvas — Interactive Particles</h4>
+        <canvas id="myCanvas" height="200" aria-label="Interactive particle canvas"></canvas>
+        <p style="margin-top:0.5rem;font-size:0.78rem;color:var(--muted);font-family:var(--font-mono)">Move your mouse over the canvas to interact ↑</p>
+      </div>
+
+      <!-- Image Map -->
+      <div class="reveal">
+        <h4 style="margin-bottom:1rem">&lt;map&gt; & &lt;area&gt; — Image Map</h4>
+        <div class="card" style="padding:1.5rem">
+          <p style="margin-bottom:1rem;font-size:0.9rem;color:var(--muted)">Click different colored zones on the image below:</p>
+          <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&q=70"
+               alt="Earth from space — click different areas" usemap="#earth-map"
+               style="width:100%;border-radius:8px;border:1px solid var(--border);display:block" loading="lazy" />
+          <map name="earth-map">
+            <area shape="rect" coords="0,0,200,150" href="#" alt="Western Hemisphere" title="Western Hemisphere" onclick="showToast('🌎','Western Hemisphere clicked!');return false;" />
+            <area shape="rect" coords="200,0,400,150" href="#" alt="Eastern Hemisphere" title="Eastern Hemisphere" onclick="showToast('🌏','Eastern Hemisphere clicked!');return false;" />
+            <area shape="rect" coords="0,150,400,300" href="#" alt="Southern Ocean" title="Southern Ocean" onclick="showToast('🌊','Southern Ocean clicked!');return false;" />
+          </map>
+        </div>
+      </div>
+    </div>
+
+    <!-- Iframe -->
+    <div class="reveal" style="margin-top:1.5rem">
+      <h4 style="margin-bottom:1rem">iFrame Element — Embedded Document</h4>
+      <div class="iframe-wrap">
+        <div class="iframe-bar">
+          <div class="code-dots">
+            <div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div>
+          </div>
+          <div class="iframe-url">https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe</div>
+        </div>
+        <iframe src="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe"
+                title="MDN Web Docs — iframe" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 6 — CODE, ACCORDION, MISC ELEMENTS
+============================================================ -->
+<section class="section" id="code-section">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="tag blue">Code & More Elements</span>
+    </div>
+
+    <div class="grid-2">
+      <!-- Code block with copy -->
+      <div class="reveal">
+        <h4 style="margin-bottom:1rem">Code Block with Copy Button</h4>
+        <div class="code-wrap">
+          <div class="code-header">
+            <div class="code-dots">
+              <div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div>
+            </div>
+            <span class="code-lang">JavaScript</span>
+            <button class="copy-btn" data-target="code-block-1">Copy</button>
+          </div>
+          <pre><code id="code-block-1"><span class="cm">// Fetch data with async/await</span>
+<span class="kw">async function</span> <span class="fn">fetchUsers</span>(endpoint) {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> res = <span class="kw">await</span> fetch(endpoint);
+    <span class="kw">if</span> (!res.ok) <span class="kw">throw new</span> Error(res.status);
+    <span class="kw">const</span> data = <span class="kw">await</span> res.json();
+    <span class="kw">return</span> data.users ?? [];
+  } <span class="kw">catch</span> (err) {
+    console.<span class="fn">error</span>(<span class="str">"Fetch failed:"</span>, err);
+    <span class="kw">return</span> [];
+  }
+}
+
+<span class="fn">fetchUsers</span>(<span class="str">"/api/v1/users"</span>)
+  .then(users =&gt; console.<span class="fn">log</span>(users));</code></pre>
+        </div>
+      </div>
+
+      <!-- Details/Summary accordion -->
+      <div class="reveal">
+        <h4 style="margin-bottom:1rem">Details & Summary — Accordion</h4>
+        <details open>
+          <summary>What is semantic HTML?</summary>
+          <div><p>Semantic HTML uses elements that convey meaning — like <code>&lt;nav&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;header&gt;</code> — rather than generic <code>&lt;div&gt;</code> containers. Improves SEO, accessibility, and maintainability.</p></div>
+        </details>
+        <details>
+          <summary>Why does accessibility matter?</summary>
+          <div><p>Approximately 15% of the world's population lives with some form of disability. Accessible websites ensure everyone can use your product — and often improve experience for all users.</p></div>
+        </details>
+        <details>
+          <summary>What is the difference between <code>id</code> and <code>class</code>?</summary>
+          <div><p>An <code>id</code> must be unique within a page — used for anchoring, JS targeting, ARIA. A <code>class</code> can be shared across multiple elements and is primarily used for CSS styling.</p></div>
+        </details>
+        <details>
+          <summary>What is the &lt;template&gt; element?</summary>
+          <div><p>The <code>&lt;template&gt;</code> element holds HTML that is not rendered until it's cloned and inserted by JavaScript. Scroll down to see a live demo where users are rendered from a template.</p></div>
+        </details>
+        <details>
+          <summary>Can I use HTML5 elements today?</summary>
+          <div><p>Yes! HTML5 semantic elements have near-universal browser support. Always check <a href="https://caniuse.com" target="_blank" rel="noopener">caniuse.com</a> for specifics, but for semantic tags you can use them with full confidence.</p></div>
+        </details>
+      </div>
+
+      <!-- Template element -->
+      <div class="reveal">
+        <h4 style="margin-bottom:1rem">&lt;template&gt; Element — Cloning DOM</h4>
+        <div class="card">
+          <p style="margin-bottom:1rem;font-size:0.9rem;color:var(--muted)">These cards are rendered from a hidden <code>&lt;template&gt;</code> tag using JavaScript:</p>
+          <div class="template-output" id="template-output"></div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:1rem" id="add-template-btn">+ Add User from Template</button>
+        </div>
+        <template id="user-template">
+          <div class="template-card">
+            <div class="t-avatar"></div>
+            <div>
+              <div class="t-name"></div>
+              <div class="t-role"></div>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Misc HTML elements showcase -->
+      <div class="reveal">
+        <h4 style="margin-bottom:1rem">Misc Semantic Elements</h4>
+        <div class="card" style="display:flex;flex-direction:column;gap:1.25rem">
+
+          <div>
+            <h6 style="margin-bottom:0.4rem">Address Element</h6>
+            <address>
+              <strong>ElementsOS HQ</strong><br>
+              123 Semantic Lane,<br>
+              Web City, Internet 00001<br>
+              <a href="mailto:hello@elementsos.dev">hello@elementsos.dev</a>
+            </address>
+          </div>
+
+          <hr>
+
+          <div>
+            <h6 style="margin-bottom:0.4rem">Var, Samp, and Dfn</h6>
+            <p>The variable <var>x</var> equals <var>y</var> + 2.</p>
+            <p>Sample output: <samp>HTTP 200 OK</samp></p>
+            <p><dfn>HTML</dfn> stands for HyperText Markup Language.</p>
+          </div>
+
+          <hr>
+
+          <div>
+            <h6 style="margin-bottom:0.4rem">Wbr & Bdi Elements</h6>
+            <p>Long word example: super<wbr>cali<wbr>fragi<wbr>listic<wbr>expiali<wbr>docious</p>
+            <p>User: <bdi>مرحبا</bdi> — bdi isolates bidirectional text.</p>
+          </div>
+
+          <hr>
+
+          <div>
+            <h6 style="margin-bottom:0.4rem">Dialog (Native HTML)</h6>
+            <button class="btn btn-outline btn-sm" id="dialog-open-btn-2">Open &lt;dialog&gt; Element</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Native Dialog Element -->
+<dialog id="native-dialog">
+  <button onclick="document.getElementById('native-dialog').close()" style="position:absolute;top:1rem;right:1rem;background:var(--bg3);border:1px solid var(--border);border-radius:50%;width:32px;height:32px;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center">✕</button>
+  <span class="tag green" style="margin-bottom:1rem">Native HTML Element</span>
+  <h3 style="margin-bottom:0.75rem">&lt;dialog&gt; Element</h3>
+  <p style="color:var(--muted);font-size:0.95rem;margin-bottom:1.5rem">
+    This is the <strong style="color:var(--text)">native HTML dialog element</strong> — no JavaScript modal library needed. It supports <code>showModal()</code> for proper focus trapping and backdrop rendering.
+  </p>
+  <div style="display:flex;gap:0.75rem">
+    <button class="btn btn-primary" onclick="document.getElementById('native-dialog').close()">Close Dialog</button>
+  </div>
+</dialog>
+
+<!-- ============================================================
+     SECTION 7 — INTERACTIVE
+============================================================ -->
+<section class="section" id="interactive">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="tag pink">Interactive</span>
+    </div>
+
+    <div class="grid-2">
+
+      <!-- Live Counter -->
+      <article class="card reveal" style="text-align:center">
+        <h4 style="margin-bottom:0.5rem">Live Counter</h4>
+        <p class="text-muted" style="font-size:0.85rem;margin-bottom:2rem;max-width:none">Click buttons or use keyboard shortcuts.</p>
+        <div id="live-counter">
+          <div style="display:flex;flex-direction:column;gap:0.5rem">
+            <button class="btn btn-outline" id="cnt-dec">−</button>
+          </div>
+          <div class="counter-display" id="counter-num">0</div>
+          <div style="display:flex;flex-direction:column;gap:0.5rem">
+            <button class="btn btn-primary" id="cnt-inc">+</button>
+          </div>
+        </div>
+        <br>
+        <button class="btn btn-ghost btn-sm" id="cnt-reset">Reset</button>
+      </article>
+
+      <!-- Carousel / Testimonials -->
+      <article class="card reveal">
+        <h4 style="margin-bottom:1rem">Testimonials Carousel</h4>
+        <div class="carousel-wrap">
+          <div class="carousel-track" id="carousel-track">
+            <div class="carousel-slide">
+              <p class="testimonial-quote">"ElementsOS is the single best HTML reference I've found. Every element demonstrated beautifully in context — not just a dry spec list."</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar">AM</div>
+                <div>
+                  <div class="testimonial-name">Ayesha Mahmood</div>
+                  <div class="testimonial-role">Frontend Developer, Karachi</div>
+                </div>
+              </div>
+            </div>
+            <div class="carousel-slide">
+              <p class="testimonial-quote">"The form validation examples alone saved me hours. Real-world patterns, not textbook examples. Highly recommended for every web student."</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar">ZA</div>
+                <div>
+                  <div class="testimonial-name">Zubair Ahmed</div>
+                  <div class="testimonial-role">CS Student, LUMS</div>
+                </div>
+              </div>
+            </div>
+            <div class="carousel-slide">
+              <p class="testimonial-quote">"I've bookmarked this page. The canvas particle system and SVG waveform are especially inspiring — they made me want to learn more."</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar">SR</div>
+                <div>
+                  <div class="testimonial-name">Sara Rehman</div>
+                  <div class="testimonial-role">UI/UX Design Student</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="carousel-dots" id="carousel-dots">
+          <div class="carousel-dot active" data-i="0"></div>
+          <div class="carousel-dot" data-i="1"></div>
+          <div class="carousel-dot" data-i="2"></div>
+        </div>
+        <div class="carousel-arrows">
+          <button class="btn btn-icon btn-sm" id="car-prev">←</button>
+          <button class="btn btn-icon btn-sm" id="car-next">→</button>
+        </div>
+      </article>
+
+      <!-- Dynamic Tags -->
+      <article class="card reveal">
+        <h4 style="margin-bottom:1.5rem">Dynamic Tags & Drag-and-Drop Board</h4>
+        <h6 style="margin-bottom:0.75rem">Dynamic Tag System</h6>
+        <div id="dynamic-tags" style="display:flex;gap:0.5rem;flex-wrap:wrap;min-height:36px"></div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.75rem">
+          <input type="text" id="tag-input" placeholder="Add a tag and press Enter…" style="max-width:200px;padding:8px 12px;font-size:0.85rem" />
+          <button class="btn btn-outline btn-sm" id="add-tag-btn">Add</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <h6 style="margin-bottom:0.75rem">Drag & Drop Kanban</h6>
+        <div class="drag-board">
+          <div class="drag-col" id="col-todo" ondragover="allowDrop(event)" ondrop="drop(event,'col-todo')">
+            <h6>To Do</h6>
+            <div class="drag-item" draggable="true" ondragstart="drag(event)" id="d1">📝 Write docs</div>
+            <div class="drag-item" draggable="true" ondragstart="drag(event)" id="d2">🎨 Design UI</div>
+          </div>
+          <div class="drag-col" id="col-progress" ondragover="allowDrop(event)" ondrop="drop(event,'col-progress')">
+            <h6>In Progress</h6>
+            <div class="drag-item" draggable="true" ondragstart="drag(event)" id="d3">⚡ Build API</div>
+          </div>
+          <div class="drag-col" id="col-done" ondragover="allowDrop(event)" ondrop="drop(event,'col-done')">
+            <h6>Done ✓</h6>
+            <div class="drag-item" draggable="true" ondragstart="drag(event)" id="d4">✅ Setup repo</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Clock + Timeline -->
+      <article class="card reveal">
+        <h4 style="margin-bottom:1.5rem">Live Clock & Timeline</h4>
+        <h6 style="margin-bottom:0.75rem">Digital Clock</h6>
+        <div class="clock-wrap">
+          <div>
+            <div class="digital-clock" id="digital-clock">00:00:00</div>
+            <div class="clock-date" id="clock-date">Loading…</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h6 style="margin-bottom:0.75rem">HTML Learning Timeline</h6>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-date">1993</div>
+            <div class="timeline-title">HTML 1.0</div>
+            <div class="timeline-desc">Tim Berners-Lee published the first HTML spec at CERN.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">1997</div>
+            <div class="timeline-title">HTML 4.0</div>
+            <div class="timeline-desc">Tables, frames, and stylesheets were introduced.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">2008</div>
+            <div class="timeline-title">HTML5 Draft</div>
+            <div class="timeline-desc">Canvas, video, audio, and semantic elements arrived.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">2014</div>
+            <div class="timeline-title">HTML5 W3C Rec.</div>
+            <div class="timeline-desc">HTML5 became the official W3C recommendation.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Now</div>
+            <div class="timeline-title">Living Standard</div>
+            <div class="timeline-desc">WHATWG maintains HTML as a continuously updated living standard.</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Tooltips & chips -->
+      <article class="card reveal">
+        <h4 style="margin-bottom:1.5rem">Tooltips, Chips & More</h4>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.5rem">
+          <span class="chip"><span class="chip-dot"></span>Live</span>
+          <span class="chip"><span class="chip-dot" style="background:var(--accent2)"></span>v1.0.0</span>
+          <span class="chip"><span class="chip-dot" style="background:var(--green)"></span>Stable</span>
+          <span class="chip"><span class="chip-dot" style="background:var(--warn)"></span>Beta</span>
+        </div>
+
+        <p style="font-size:0.9rem;color:var(--muted);margin-bottom:1rem">Hover the underlined terms for tooltips:</p>
+        <p style="margin-bottom:1.5rem">
+          The <span data-tooltip="HyperText Markup Language" style="border-bottom:1px dotted var(--accent);color:var(--accent)">HTML</span>
+          spec is maintained by the <span data-tooltip="Web Hypertext Application Technology Working Group" style="border-bottom:1px dotted var(--accent2);color:var(--accent2)">WHATWG</span>
+          and is a <span data-tooltip="No versioned releases; always evolving" style="border-bottom:1px dotted var(--accent3);color:var(--accent3)">Living Standard</span>.
+        </p>
+
+        <hr>
+        <h6 style="margin:1rem 0 0.75rem">LocalStorage Persistence</h6>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem">Your note is saved in <code>localStorage</code> and survives page refresh:</p>
+        <textarea id="ls-note" placeholder="Type a note — it auto-saves to localStorage…" style="min-height:80px"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem">
+          <span id="ls-status" style="font-family:var(--font-mono);font-size:0.72rem;color:var(--muted)">Not saved</span>
+          <button class="btn btn-danger btn-sm" id="ls-clear">Clear</button>
+        </div>
+      </article>
+
+      <!-- LocalStorage Note -->
+      <article class="card reveal">
+        <h4 style="margin-bottom:1.5rem">Code Block — HTML Example</h4>
+        <div class="code-wrap">
+          <div class="code-header">
+            <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+            <span class="code-lang">HTML5</span>
+            <button class="copy-btn" data-target="code-block-2">Copy</button>
+          </div>
+          <pre><code id="code-block-2"><span class="cm">&lt;!-- Semantic HTML5 structure --&gt;</span>
+<span class="kw">&lt;!DOCTYPE</span> <span class="fn">html</span><span class="kw">&gt;</span>
+<span class="kw">&lt;html</span> <span class="fn">lang</span>=<span class="str">"en"</span><span class="kw">&gt;</span>
+<span class="kw">&lt;head&gt;</span>
+  <span class="kw">&lt;meta</span> <span class="fn">charset</span>=<span class="str">"UTF-8"</span><span class="kw">/&gt;</span>
+  <span class="kw">&lt;title&gt;</span>My Page<span class="kw">&lt;/title&gt;</span>
+<span class="kw">&lt;/head&gt;</span>
+<span class="kw">&lt;body&gt;</span>
+  <span class="kw">&lt;header&gt;</span>
+    <span class="kw">&lt;nav&gt;</span>…<span class="kw">&lt;/nav&gt;</span>
+  <span class="kw">&lt;/header&gt;</span>
+  <span class="kw">&lt;main&gt;</span>
+    <span class="kw">&lt;article&gt;</span>…<span class="kw">&lt;/article&gt;</span>
+    <span class="kw">&lt;aside&gt;</span>…<span class="kw">&lt;/aside&gt;</span>
+  <span class="kw">&lt;/main&gt;</span>
+  <span class="kw">&lt;footer&gt;</span>…<span class="kw">&lt;/footer&gt;</span>
+<span class="kw">&lt;/body&gt;</span>
+<span class="kw">&lt;/html&gt;</span></code></pre>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 8 — CHARTS
+============================================================ -->
+<section class="section" id="charts">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="tag warn">Charts & Visualisation</span>
+    </div>
+
+    <div class="grid-2">
+      <!-- Pure CSS Bar Chart -->
+      <article class="card reveal">
+        <h4 style="margin-bottom:1.5rem">Pure CSS Bar Chart</h4>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem">Built entirely with CSS — no canvas, no library.</p>
+        <div class="bar-chart" id="bar-chart">
+          <div class="bar-item">
+            <div class="bar bar-1" data-val="92%" style="height:0%" data-h="92"></div>
+            <div class="bar-label">HTML</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar bar-2" data-val="78%" style="height:0%" data-h="78"></div>
+            <div class="bar-label">CSS</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar bar-3" data-val="85%" style="height:0%" data-h="85"></div>
+            <div class="bar-label">JS</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar bar-4" data-val="70%" style="height:0%" data-h="70"></div>
+            <div class="bar-label">A11y</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar bar-5" data-val="65%" style="height:0%" data-h="65"></div>
+            <div class="bar-label">SVG</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- SVG Donut Chart -->
+      <article class="card reveal">
+        <h4 style="margin-bottom:1.5rem">SVG Donut Chart</h4>
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem">Built with pure SVG — no canvas or charting library.</p>
+        <div class="donut-wrap">
+          <svg width="160" height="160" viewBox="0 0 160 160" aria-label="Skill distribution donut chart" role="img">
+            <!-- HTML: 35% -->
+            <circle cx="80" cy="80" r="60" fill="none" stroke="var(--accent)" stroke-width="22"
+                    stroke-dasharray="131.9 376.9" stroke-dashoffset="0" transform="rotate(-90 80 80)">
+              <animate attributeName="stroke-dasharray" from="0 508.9" to="131.9 376.9" dur="1.2s" fill="freeze"/>
+            </circle>
+            <!-- CSS: 25% -->
+            <circle cx="80" cy="80" r="60" fill="none" stroke="var(--accent2)" stroke-width="22"
+                    stroke-dasharray="94.2 414.7" stroke-dashoffset="-131.9" transform="rotate(-90 80 80)">
+              <animate attributeName="stroke-dasharray" from="0 508.9" to="94.2 414.7" dur="1.4s" fill="freeze"/>
+            </circle>
+            <!-- JS: 25% -->
+            <circle cx="80" cy="80" r="60" fill="none" stroke="var(--accent3)" stroke-width="22"
+                    stroke-dasharray="94.2 414.7" stroke-dashoffset="-226.1" transform="rotate(-90 80 80)">
+              <animate attributeName="stroke-dasharray" from="0 508.9" to="94.2 414.7" dur="1.6s" fill="freeze"/>
+            </circle>
+            <!-- Other: 15% -->
+            <circle cx="80" cy="80" r="60" fill="none" stroke="var(--warn)" stroke-width="22"
+                    stroke-dasharray="56.5 452.4" stroke-dashoffset="-320.3" transform="rotate(-90 80 80)">
+              <animate attributeName="stroke-dasharray" from="0 508.9" to="56.5 452.4" dur="1.8s" fill="freeze"/>
+            </circle>
+            <text x="80" y="75" text-anchor="middle" font-family="Syne,sans-serif" font-size="18" font-weight="800" fill="var(--text)">Skills</text>
+            <text x="80" y="95" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="var(--muted)">Distribution</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>HTML — 35%</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--accent2)"></span>CSS — 25%</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--accent3)"></span>JS — 25%</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--warn)"></span>Other — 15%</div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 9 — PRICING
+============================================================ -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="section-label reveal">
+      <span class="tag">Pricing</span>
+    </div>
+
+    <div style="text-align:center;margin-bottom:3rem" class="reveal">
+      <h2>Simple, transparent pricing</h2>
+      <p class="text-muted" style="margin:0.75rem auto 0;font-size:1.05rem">No hidden fees. Cancel anytime.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="pricing-card reveal">
+        <h6>Starter</h6>
+        <div class="price">$0 <small>/ mo</small></div>
+        <p class="text-muted" style="font-size:0.85rem">Perfect for personal projects</p>
+        <ul class="pricing-features">
+          <li>3 projects</li>
+          <li>1 GB storage</li>
+          <li>Community support</li>
+          <li class="disabled">Custom domain</li>
+          <li class="disabled">Analytics</li>
+        </ul>
+        <button class="btn btn-outline" style="width:100%">Get Started Free</button>
+      </div>
+      <div class="pricing-card featured reveal">
+        <h6>Pro</h6>
+        <div class="price">$29 <small>/ mo</small></div>
+        <p class="text-muted" style="font-size:0.85rem">For teams that ship fast</p>
+        <ul class="pricing-features">
+          <li>Unlimited projects</li>
+          <li>50 GB storage</li>
+          <li>Priority support</li>
+          <li>Custom domain</li>
+          <li>Advanced analytics</li>
+        </ul>
+        <button class="btn btn-primary" style="width:100%">Start Free Trial</button>
+      </div>
+      <div class="pricing-card reveal">
+        <h6>Enterprise</h6>
+        <div class="price">Custom</div>
+        <p class="text-muted" style="font-size:0.85rem">For large organisations</p>
+        <ul class="pricing-features">
+          <li>Unlimited everything</li>
+          <li>1 TB+ storage</li>
+          <li>24/7 SLA support</li>
+          <li>SSO & SAML</li>
+          <li>Dedicated infra</li>
+        </ul>
+        <button class="btn btn-outline" style="width:100%">Contact Sales</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="font-size:1.4rem">Elements<span style="color:var(--accent)">OS</span></div>
+        <p>A complete HTML5 elements reference styled as a real product site. Built with semantic markup, modern CSS, and vanilla JavaScript.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Reference</h5>
+        <ul>
+          <li><a href="#typography">Typography</a></li>
+          <li><a href="#forms">Forms</a></li>
+          <li><a href="#data">Tables</a></li>
+          <li><a href="#media">Media</a></li>
+          <li><a href="#charts">Charts</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <ul>
+          <li><a href="https://developer.mozilla.org" target="_blank" rel="noopener">MDN Web Docs</a></li>
+          <li><a href="https://html.spec.whatwg.org" target="_blank" rel="noopener">WHATWG Spec</a></li>
+          <li><a href="https://caniuse.com" target="_blank" rel="noopener">Can I Use</a></li>
+          <li><a href="https://web.dev" target="_blank" rel="noopener">web.dev</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Accessibility</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> ElementsOS v1.0. All rights reserved.</span>
+      <span>Built with semantic <abbr title="HyperText Markup Language">HTML5</abbr>, <abbr title="Cascading Style Sheets">CSS3</abbr> &amp; vanilla <abbr title="JavaScript">JS</abbr>.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     MODAL
+============================================================ -->
+<div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div id="modal">
+    <button id="modal-close" aria-label="Close modal">✕</button>
+    <span class="tag blue" style="margin-bottom:1.5rem">Custom Modal</span>
+    <h3 id="modal-title" style="margin-bottom:0.75rem">This is a Custom Modal</h3>
+    <p style="color:var(--muted);font-size:0.95rem;margin-bottom:2rem">
+      Built with <strong style="color:var(--text)">pure CSS + JS</strong>. Includes backdrop blur, spring animation, keyboard escape, and click-outside-to-close. Compare with the native <code>&lt;dialog&gt;</code> element above.
+    </p>
+    <div style="display:flex;gap:0.75rem">
+      <button class="btn btn-primary" id="modal-confirm">Confirm Action</button>
+      <button class="btn btn-outline" id="modal-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TOAST CONTAINER
+============================================================ -->
+<div id="toast-container"></div>
+
+<!-- ============================================================
+     KEYBOARD SHORTCUTS PANEL
+============================================================ -->
+<div id="shortcuts-panel">
+  <h5>⌨ Keyboard Shortcuts</h5>
+  <div class="shortcut-row"><span>Toggle Dark/Light</span><div><kbd>Ctrl</kbd>+<kbd>D</kbd></div></div>
+  <div class="shortcut-row"><span>Show Shortcuts</span><div><kbd>Ctrl</kbd>+<kbd>K</kbd></div></div>
+  <div class="shortcut-row"><span>Open Modal</span><div><kbd>Ctrl</kbd>+<kbd>M</kbd></div></div>
+  <div class="shortcut-row"><span>Counter +1</span><div><kbd>Ctrl</kbd>+<kbd>↑</kbd></div></div>
+  <div class="shortcut-row"><span>Counter -1</span><div><kbd>Ctrl</kbd>+<kbd>↓</kbd></div></div>
+  <div class="shortcut-row"><span>Close Panels</span><div><kbd>Esc</kbd></div></div>
+</div>
+
+<!-- ============================================================
+     COOKIE BANNER
+============================================================ -->
+<div id="cookie-banner">
+  <p>🍪 We use cookies to improve your experience. This is a demo page — no real cookies are set.</p>
+  <div style="display:flex;gap:0.75rem;flex-shrink:0">
+    <button class="btn btn-primary btn-sm" id="cookie-accept">Accept All</button>
+    <button class="btn btn-ghost btn-sm" id="cookie-decline">Decline</button>
+  </div>
+</div>
+
+<!-- Template element (hidden from rendering) -->
+<template id="user-template">
+  <div class="template-card">
+    <div class="t-avatar"></div>
+    <div>
+      <div class="t-name"></div>
+      <div class="t-role"></div>
+    </div>
+  </div>
+</template>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+  /* ==========================================
+     CUSTOM CURSOR
+  ========================================== */
+  const cursorDot  = document.getElementById('cursor-dot');
+  const cursorRing = document.getElementById('cursor-ring');
+  let mx = 0, my = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursorDot.style.left  = mx + 'px';
+    cursorDot.style.top   = my + 'px';
+    cursorRing.style.left = mx + 'px';
+    cursorRing.style.top  = my + 'px';
+  });
+
+  document.querySelectorAll('a,button,[data-tooltip],[draggable]').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  });
+
+  /* ==========================================
+     SCROLL PROGRESS
+  ========================================== */
+  const scrollBar = document.getElementById('scroll-progress');
+  window.addEventListener('scroll', () => {
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    scrollBar.style.width = (window.scrollY / total * 100) + '%';
+  });
+
+  /* ==========================================
+     THEME SYSTEM
+  ========================================== */
+  const html      = document.documentElement;
+  const themeBtn  = document.getElementById('theme-btn');
+  const themeMenu = document.getElementById('theme-menu');
+
+  const saved = localStorage.getItem('eos-theme') || 'dark';
+  html.dataset.theme = saved;
+
+  themeBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    themeMenu.classList.toggle('open');
+  });
+  document.addEventListener('click', () => themeMenu.classList.remove('open'));
+
+  document.querySelectorAll('.theme-opt').forEach(opt => {
+    opt.addEventListener('click', e => {
+      e.stopPropagation();
+      const t = opt.dataset.t;
+      html.dataset.theme = t;
+      localStorage.setItem('eos-theme', t);
+      themeMenu.classList.remove('open');
+      showToast('🎨', 'Theme: ' + t.charAt(0).toUpperCase() + t.slice(1), 'info');
+    });
+  });
+
+  /* ==========================================
+     MOBILE NAV
+  ========================================== */
+  const hamburger = document.getElementById('hamburger');
+  const navLinks  = document.getElementById('nav-links');
+
+  hamburger.addEventListener('click', () => {
+    const open = navLinks.classList.toggle('open');
+    hamburger.setAttribute('aria-expanded', open);
+    hamburger.querySelectorAll('span').forEach((s, i) => {
+      if (open) {
+        if (i===0) s.style.cssText='transform:rotate(45deg) translate(5px,5px)';
+        if (i===1) s.style.opacity='0';
+        if (i===2) s.style.cssText='transform:rotate(-45deg) translate(5px,-5px)';
+      } else { s.style.cssText=''; }
+    });
+  });
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      navLinks.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', false);
+      hamburger.querySelectorAll('span').forEach(s => s.style.cssText='');
+    });
+  });
+
+  /* ==========================================
+     SMOOTH SCROLL
+  ========================================== */
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      const target = document.querySelector(this.getAttribute('href'));
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  /* ==========================================
+     SCROLL REVEAL
+  ========================================== */
+  const revObs = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 60);
+        revObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
+
+  /* ==========================================
+     ANIMATED COUNTERS (hero)
+  ========================================== */
+  function animateCount(el, target, dur=1800) {
+    const start = performance.now();
+    const step = now => {
+      const p = Math.min((now-start)/dur, 1);
+      const e = 1 - Math.pow(1-p, 3);
+      el.textContent = Math.round(e * target);
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  const statObs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        document.querySelectorAll('[data-count]').forEach(el =>
+          animateCount(el, parseInt(el.dataset.count)));
+        statObs.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+  const statsEl = document.querySelector('.hero-stats');
+  if (statsEl) statObs.observe(statsEl);
+
+  /* ==========================================
+     HERO BUTTON
+  ========================================== */
+  document.getElementById('hero-explore').addEventListener('click', () => {
+    document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  /* ==========================================
+     TOAST SYSTEM
+  ========================================== */
+  function showToast(icon, msg, type='info') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast-item ' + type;
+    toast.innerHTML = `<span style="font-size:1.2rem">${icon}</span><span>${msg}</span>`;
+    container.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 350);
+    }, 3500);
+  }
+
+  document.getElementById('toast-info-btn').addEventListener('click', () => showToast('ℹ️','This is an info notification.','info'));
+  document.getElementById('toast-success-btn').addEventListener('click', () => showToast('✅','Action completed successfully!','success'));
+  document.getElementById('toast-error-btn').addEventListener('click', () => showToast('❌','Something went wrong. Please try again.','error'));
+
+  /* ==========================================
+     RIPPLE EFFECT
+  ========================================== */
+  function addRipple(btn) {
+    btn.addEventListener('click', function(e) {
+      const ripple = document.createElement('span');
+      ripple.classList.add('ripple');
+      const rect = this.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+      this.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    });
+  }
+  addRipple(document.getElementById('ripple-btn'));
+
+  /* ==========================================
+     LOADING BUTTON
+  ========================================== */
+  document.getElementById('load-btn').addEventListener('click', function() {
+    this.classList.add('btn-loading');
+    this.textContent = 'Loading…';
+    setTimeout(() => {
+      this.classList.remove('btn-loading');
+      this.textContent = 'Simulate Loading State';
+      showToast('✓','Task completed!','success');
+    }, 2000);
+  });
+
+  /* ==========================================
+     MODAL
+  ========================================== */
+  const overlay     = document.getElementById('modal-overlay');
+  const modalClose  = document.getElementById('modal-close');
+  const modalCancel = document.getElementById('modal-cancel');
+  const modalConfirm= document.getElementById('modal-confirm');
+
+  document.getElementById('modal-open-btn').addEventListener('click', () => overlay.classList.add('open'));
+  document.getElementById('nav-cta').addEventListener('click', () => overlay.classList.add('open'));
+  modalClose.addEventListener('click', () => overlay.classList.remove('open'));
+  modalCancel.addEventListener('click', () => overlay.classList.remove('open'));
+  modalConfirm.addEventListener('click', () => { overlay.classList.remove('open'); showToast('✓','Confirmed!','success'); });
+  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.classList.remove('open'); });
+
+  /* ==========================================
+     NATIVE DIALOG
+  ========================================== */
+  const nativeDialog = document.getElementById('native-dialog');
+  document.getElementById('dialog-open-btn').addEventListener('click', () => nativeDialog.showModal());
+  const dlgBtn2 = document.getElementById('dialog-open-btn-2');
+  if (dlgBtn2) dlgBtn2.addEventListener('click', () => nativeDialog.showModal());
+
+  /* ==========================================
+     FORM VALIDATION
+  ========================================== */
+  function setField(inputId, errId, okId, isError) {
+    const input = document.getElementById(inputId);
+    const err   = errId ? document.getElementById(errId) : null;
+    const ok    = okId  ? document.getElementById(okId)  : null;
+    if (isError) {
+      input.classList.add('error'); input.classList.remove('success');
+      if (err) err.classList.add('show');
+      if (ok)  ok.classList.remove('show');
+    } else {
+      input.classList.remove('error'); input.classList.add('success');
+      if (err) err.classList.remove('show');
+      if (ok)  ok.classList.add('show');
+    }
+  }
+
+  const fName  = document.getElementById('f-name');
+  const fEmail = document.getElementById('f-email');
+  const fPass  = document.getElementById('f-pass');
+  const chkTrm = document.getElementById('chk-terms');
+
+  fName.addEventListener('input',  () => setField('f-name','err-name','ok-name', fName.value.trim().length < 2));
+  fEmail.addEventListener('input', () => setField('f-email','err-email',null, !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fEmail.value)));
+  fPass.addEventListener('input',  () => setField('f-pass','err-pass',null, fPass.value.length < 8));
+
+  document.getElementById('contact-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    let valid = true;
+    if (fName.value.trim().length < 2)                              { setField('f-name','err-name','ok-name',true);  valid=false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fEmail.value))           { setField('f-email','err-email',null,true);     valid=false; }
+    if (fPass.value.length < 8)                                     { setField('f-pass','err-pass',null,true);       valid=false; }
+    if (!chkTrm.checked) { document.getElementById('err-terms').classList.add('show');    valid=false; }
+    else                 { document.getElementById('err-terms').classList.remove('show'); }
+    if (valid) showToast('✅','Form submitted successfully!','success');
+    else       showToast('❌','Please fix the errors above.','error');
+  });
+
+  /* ==========================================
+     FILE INPUT
+  ========================================== */
+  document.getElementById('f-file').addEventListener('change', function() {
+    document.getElementById('file-name').textContent = this.files[0]?.name || 'Choose a file…';
+  });
+
+  /* ==========================================
+     LIVE COUNTER
+  ========================================== */
+  let count = 0;
+  const numEl = document.getElementById('counter-num');
+  function updateCounter() {
+    numEl.textContent = count;
+    numEl.style.color = count > 0 ? 'var(--green)' : count < 0 ? 'var(--red)' : 'var(--accent)';
+    numEl.classList.add('bump');
+    setTimeout(() => numEl.classList.remove('bump'), 150);
+  }
+  document.getElementById('cnt-inc').addEventListener('click',   () => { count++; updateCounter(); });
+  document.getElementById('cnt-dec').addEventListener('click',   () => { count--; updateCounter(); });
+  document.getElementById('cnt-reset').addEventListener('click', () => { count=0; updateCounter(); });
+
+  /* ==========================================
+     CAROUSEL
+  ========================================== */
+  let carIdx = 0;
+  const carTrack = document.getElementById('carousel-track');
+  const carDots  = document.querySelectorAll('.carousel-dot');
+  const carTotal = 3;
+
+  function goCarousel(i) {
+    carIdx = ((i % carTotal) + carTotal) % carTotal;
+    carTrack.style.transform = `translateX(-${carIdx * 100}%)`;
+    carDots.forEach((d,j) => d.classList.toggle('active', j===carIdx));
+  }
+  document.getElementById('car-prev').addEventListener('click', () => goCarousel(carIdx-1));
+  document.getElementById('car-next').addEventListener('click', () => goCarousel(carIdx+1));
+  carDots.forEach(d => d.addEventListener('click', () => goCarousel(parseInt(d.dataset.i))));
+  setInterval(() => goCarousel(carIdx+1), 5000);
+
+  /* ==========================================
+     DYNAMIC TAGS
+  ========================================== */
+  const defaultTags = ['HTML5','Semantic','A11y','CSS3'];
+  const tagsContainer = document.getElementById('dynamic-tags');
+
+  function addTag(text) {
+    if (!text.trim()) return;
+    const chip = document.createElement('span');
+    chip.className = 'chip';
+    chip.innerHTML = `<span class="chip-dot"></span>${text.trim()} <button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.85rem;padding:0 0 0 4px;line-height:1" aria-label="Remove tag">×</button>`;
+    tagsContainer.appendChild(chip);
+  }
+  defaultTags.forEach(addTag);
+
+  document.getElementById('add-tag-btn').addEventListener('click', () => {
+    const input = document.getElementById('tag-input');
+    if (input.value.trim()) { addTag(input.value); input.value=''; input.focus(); }
+  });
+  document.getElementById('tag-input').addEventListener('keydown', e => {
+    if (e.key==='Enter') { e.preventDefault(); document.getElementById('add-tag-btn').click(); }
+  });
+
+  /* ==========================================
+     DRAG AND DROP
+  ========================================== */
+  let dragged = null;
+  function drag(e) {
+    dragged = e.target;
+    e.target.classList.add('dragging');
+  }
+  function allowDrop(e) {
+    e.preventDefault();
+    document.querySelectorAll('.drag-col').forEach(c => c.classList.remove('drag-over'));
+    e.currentTarget.classList.add('drag-over');
+  }
+  function drop(e, colId) {
+    e.preventDefault();
+    const col = document.getElementById(colId);
+    if (dragged && col && !col.contains(dragged)) { col.appendChild(dragged); }
+    if (dragged) dragged.classList.remove('dragging');
+    document.querySelectorAll('.drag-col').forEach(c => c.classList.remove('drag-over'));
+    showToast('✅','Card moved!','success');
+  }
+  document.addEventListener('dragend', () => {
+    if (dragged) dragged.classList.remove('dragging');
+    document.querySelectorAll('.drag-col').forEach(c => c.classList.remove('drag-over'));
+  });
+
+  /* ==========================================
+     TABLE — SORT & FILTER
+  ========================================== */
+  const tableBody = document.getElementById('table-body');
+  const rowCountEl = document.getElementById('row-count');
+
+  function updateRowCount() {
+    const visible = tableBody.querySelectorAll('tr:not([style*="none"])').length;
+    rowCountEl.textContent = `${visible} row${visible!==1?'s':''}`;
+  }
+  updateRowCount();
+
+  document.getElementById('table-filter').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    tableBody.querySelectorAll('tr').forEach(tr => {
+      tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+    updateRowCount();
+  });
+
+  let sortDir = {};
+  document.querySelectorAll('#api-table thead th').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = parseInt(th.dataset.col);
+      sortDir[col] = !sortDir[col];
+      const rows = Array.from(tableBody.querySelectorAll('tr'));
+      rows.sort((a,b) => {
+        const av = a.cells[col]?.textContent.trim() || '';
+        const bv = b.cells[col]?.textContent.trim() || '';
+        return sortDir[col] ? av.localeCompare(bv) : bv.localeCompare(av);
+      });
+      document.querySelectorAll('#api-table thead th').forEach(h => {
+        h.classList.remove('sort-asc','sort-desc');
+      });
+      th.classList.add(sortDir[col] ? 'sort-asc' : 'sort-desc');
+      rows.forEach(r => tableBody.appendChild(r));
+    });
+  });
+
+  /* ==========================================
+     CANVAS — PARTICLE EFFECT
+  ========================================== */
+  (function() {
+    const canvas = document.getElementById('myCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    function resize() { canvas.width = canvas.parentElement.clientWidth || 400; canvas.height = 200; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const N = 55;
+    const mouse = { x: -999, y: -999 };
+    canvas.addEventListener('mousemove', e => { const r=canvas.getBoundingClientRect(); mouse.x=e.clientX-r.left; mouse.y=e.clientY-r.top; });
+    canvas.addEventListener('mouseleave', () => { mouse.x=-999; mouse.y=-999; });
+
+    const pts = Array.from({length:N}, () => ({
+      x: Math.random()*400, y: Math.random()*200,
+      vx: (Math.random()-.5)*.6, vy: (Math.random()-.5)*.6,
+      r: Math.random()*2.5+1,
+    }));
+    const COLORS = ['#c8fa5f','#5fc8fa','#fa5fc8','#faad5f'];
+
+    function draw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      for (let i=0;i<pts.length;i++) {
+        for (let j=i+1;j<pts.length;j++) {
+          const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+          const d=Math.sqrt(dx*dx+dy*dy);
+          if (d<80) {
+            ctx.beginPath(); ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y);
+            ctx.strokeStyle=`rgba(255,255,255,${0.06*(1-d/80)})`; ctx.lineWidth=0.8; ctx.stroke();
+          }
+        }
+      }
+      pts.forEach((p,i) => {
+        const mdx=p.x-mouse.x, mdy=p.y-mouse.y;
+        const md=Math.sqrt(mdx*mdx+mdy*mdy);
+        if (md<80) { p.vx+=(mdx/md)*.5; p.vy+=(mdy/md)*.5; }
+        p.vx*=.98; p.vy*=.98;
+        p.x+=p.vx; p.y+=p.vy;
+        if (p.x<0||p.x>canvas.width)  p.vx*=-1;
+        if (p.y<0||p.y>canvas.height) p.vy*=-1;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=COLORS[i%COLORS.length]; ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+
+  /* ==========================================
+     LIVE CLOCK
+  ========================================== */
+  function updateClock() {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const ss = String(now.getSeconds()).padStart(2,'0');
+    document.getElementById('digital-clock').textContent = `${hh}:${mm}:${ss}`;
+    document.getElementById('clock-date').textContent = now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  }
+  updateClock(); setInterval(updateClock, 1000);
+
+  /* ==========================================
+     CHART BARS ANIMATE
+  ========================================== */
+  const barObs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        document.querySelectorAll('.bar').forEach((bar,i) => {
+          setTimeout(() => {
+            bar.style.height = bar.dataset.h + '%';
+          }, i * 100);
+        });
+        barObs.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+  const chartEl = document.getElementById('bar-chart');
+  if (chartEl) barObs.observe(chartEl);
+
+  /* ==========================================
+     COPY CODE BUTTONS
+  ========================================== */
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const target = document.getElementById(this.dataset.target);
+      if (!target) return;
+      const text = target.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        this.textContent = 'Copied!';
+        this.classList.add('copied');
+        setTimeout(() => { this.textContent='Copy'; this.classList.remove('copied'); }, 2000);
+      });
+    });
+  });
+
+  /* ==========================================
+     TEMPLATE ELEMENT DEMO
+  ========================================== */
+  const users = [
+    { name: 'Ayesha Khan', role: 'Frontend Developer', init: 'AK' },
+    { name: 'Bilal Ahmed', role: 'UI/UX Designer', init: 'BA' },
+    { name: 'Sara Noor', role: 'CS Student', init: 'SN' },
+    { name: 'Umar Farooq', role: 'Backend Developer', init: 'UF' },
+  ];
+  let userIdx = 0;
+  const templateOutput = document.getElementById('template-output');
+  const userTemplate   = document.getElementById('user-template');
+
+  function addUserFromTemplate() {
+    if (userIdx >= users.length) userIdx = 0;
+    const clone = userTemplate.content.cloneNode(true);
+    const u = users[userIdx++];
+    clone.querySelector('.t-avatar').textContent = u.init;
+    clone.querySelector('.t-name').textContent   = u.name;
+    clone.querySelector('.t-role').textContent   = u.role;
+    templateOutput.appendChild(clone);
+  }
+  addUserFromTemplate(); addUserFromTemplate();
+  document.getElementById('add-template-btn').addEventListener('click', addUserFromTemplate);
+
+  /* ==========================================
+     LOCALSTORAGE NOTE
+  ========================================== */
+  const lsNote  = document.getElementById('ls-note');
+  const lsStatus= document.getElementById('ls-status');
+  lsNote.value  = localStorage.getItem('eos-note') || '';
+
+  let lsTimer;
+  lsNote.addEventListener('input', () => {
+    clearTimeout(lsTimer);
+    lsStatus.textContent = 'Saving…';
+    lsTimer = setTimeout(() => {
+      localStorage.setItem('eos-note', lsNote.value);
+      lsStatus.textContent = '✓ Saved to localStorage';
+    }, 600);
+  });
+  document.getElementById('ls-clear').addEventListener('click', () => {
+    lsNote.value = '';
+    localStorage.removeItem('eos-note');
+    lsStatus.textContent = 'Cleared';
+    showToast('🗑️','Note cleared from localStorage','info');
+  });
+  if (lsNote.value) lsStatus.textContent = '✓ Loaded from localStorage';
+
+  /* ==========================================
+     KEYBOARD SHORTCUTS
+  ========================================== */
+  const shortcutsPanel = document.getElementById('shortcuts-panel');
+  document.getElementById('shortcuts-btn').addEventListener('click', () => {
+    shortcutsPanel.classList.toggle('open');
+  });
+
+  document.addEventListener('keydown', e => {
+    if (!e.ctrlKey) return;
+    switch(e.key) {
+      case 'd': case 'D':
+        e.preventDefault();
+        const themes = ['dark','light','cyber'];
+        const cur = html.dataset.theme;
+        const next = themes[(themes.indexOf(cur)+1) % themes.length];
+        html.dataset.theme = next;
+        localStorage.setItem('eos-theme', next);
+        showToast('🎨','Theme: '+next,'info');
+        break;
+      case 'k': case 'K':
+        e.preventDefault();
+        shortcutsPanel.classList.toggle('open');
+        break;
+      case 'm': case 'M':
+        e.preventDefault();
+        overlay.classList.add('open');
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        count++; updateCounter();
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        count--; updateCounter();
+        break;
+    }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key==='Escape') {
+      overlay.classList.remove('open');
+      shortcutsPanel.classList.remove('open');
+      themeMenu.classList.remove('open');
+    }
+  });
+
+  /* ==========================================
+     COOKIE BANNER
+  ========================================== */
+  const cookieBanner = document.getElementById('cookie-banner');
+  if (localStorage.getItem('eos-cookie')) cookieBanner.classList.add('hidden');
+  document.getElementById('cookie-accept').addEventListener('click', () => {
+    localStorage.setItem('eos-cookie','accepted');
+    cookieBanner.classList.add('hidden');
+    showToast('🍪','Cookies accepted!','success');
+  });
+  document.getElementById('cookie-decline').addEventListener('click', () => {
+    cookieBanner.classList.add('hidden');
+    showToast('👍','Cookies declined. No tracking!','info');
+  });
+
+  /* ==========================================
+     FOOTER YEAR
+  ========================================== */
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
